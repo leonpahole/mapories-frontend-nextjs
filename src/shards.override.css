@@ -1,0 +1,85 @@
+.alert {
+  color: black;
+  border: 2px solid;
+}
+
+.alert p {
+  margin-bottom: unset;
+}
+
+.alert svg {
+  width: 30px;
+  height: 30px;
+}
+
+.alert-primary {
+  background-color: rgba(var(--primary), 0.8);
+  border-color: var(--primary);
+}
+
+.alert-primary svg {
+  color: var(--primary);
+}
+
+.alert-secondary {
+  background-color: #5a616920;
+  border-color: var(--secondary);
+}
+
+.alert-secondary svg {
+  color: var(--secondary);
+}
+
+.alert-success {
+  background-color: #17c67120;
+  border-color: var(--success);
+}
+
+.alert-success svg {
+  color: var(--success);
+}
+
+.alert-info {
+  background-color: #00b8d820;
+  border-color: var(--info);
+}
+
+.alert-info svg {
+  color: var(--info);
+}
+
+.alert-warning {
+  background-color: #ffb40020;
+  border-color: var(--warning);
+}
+
+.alert-warning svg {
+  color: var(--warning);
+}
+
+.alert-danger {
+  background-color: #c4183c20;
+  border-color: var(--danger);
+}
+
+.alert-danger svg {
+  color: var(--danger);
+}
+
+.alert-light {
+  background-color: #e9ecef20;
+  border-color: var(--light);
+}
+
+.alert-light svg {
+  color: var(--light);
+}
+
+.alert-dark {
+  background-color: #959faa20;
+  border-color: var(--dark);
+}
+
+.alert-dark svg {
+  color: var(--dark);
+}
