@@ -14,6 +14,7 @@ import VerifyEmail from "./pages/verifyEmail";
 import ResendVerifyAccountEmail from "./pages/resendVerifyAccountEmail";
 import ForgotPassword from "./pages/forgotPassword";
 import ResetPassword from "./pages/resetPassword";
+import CreateSocialAccount from "./pages/CreateSocialAccount";
 
 const BodyContainer = styled.div`
   padding: 40px 20px;
@@ -68,6 +69,9 @@ const App: React.FC = () => {
             </Route>
             <Route path="/reset-password/:token">
               <ResetPassword />
+            </Route>
+            <Route path="/create-social-account">
+              <CreateSocialAccount />
             </Route>
             <Route path="/">
               <div>Home</div>

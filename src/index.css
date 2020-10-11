@@ -7,7 +7,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
   width: 100%;
-  overflow: hidden;
 }
 
 .marker {
@@ -17,4 +16,51 @@ body {
 
 .popup {
   max-width: 300px;
+}
+
+button:focus {
+  outline: none !important;
+}
+
+.social-btn-div {
+  cursor: pointer;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.social-btn-icon {
+  color: white;
+  height: 60%;
+  width: 60%;
+}
+
+.fb-btn-div {
+  background-color: #3b5998;
+}
+
+.fb-btn-icon {
+}
+
+.google-btn-div {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.google-btn-icon {
+  height: 70%;
+  width: 70%;
+}
+
+.twitter-btn-div {
+  background: #1da1f2;
+}
+
+.twitter-btn-icon {
+  height: 50%;
+  width: 50%;
 }

@@ -10,8 +10,10 @@ import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
 import { loginAction } from "../redux/auth/auth.actions";
 import { AlertTheme } from "../types/app";
+import { User } from "../types/User";
 import { useAlert } from "../utils/useAlert";
 import { useAlreadyLoggedInGuard } from "../utils/useAlreadyLoggedInGuard";
+import SocialLoginButtonRow from "../components/social/SocialLoginButtonRow";
 
 export const AuthFormContainer = styled.div`
   display: flex;
@@ -98,10 +100,18 @@ const Login: React.FC = () => {
     }
   }
 
+  const onLogin = (user: User) => {
+    dispatch(loginAction(user));
+    history.push("/");
+    setUnverifiedEmailAddress(null);
+  };
+
   return (
     <AuthFormContainer>
       <h1>Sign in</h1>
       <p>Enter your Map'o'ries account details to sign in.</p>
+
+      <SocialLoginButtonRow onLogin={onLogin} />
 
       <Formik
         validateOnBlur={false}
@@ -122,10 +132,8 @@ const Login: React.FC = () => {
         onSubmit={async (values, { resetForm }) => {
           try {
             const user = await login(values.email, values.password);
-            dispatch(loginAction(user));
-            history.push("/");
+            onLogin(user);
             resetForm();
-            setUnverifiedEmailAddress(null);
           } catch (e) {
             const networkError = e == null || e.response == null;
 

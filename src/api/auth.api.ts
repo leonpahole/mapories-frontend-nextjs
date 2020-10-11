@@ -1,5 +1,8 @@
 import { User } from "../types/User";
 import { api } from "./api";
+import { LoginSocialResponse } from "../types/LoginSocialResponse";
+
+export type SocialProvider = "facebook" | "google" | "twitter";
 
 export const register = async (
   email: string,
@@ -71,4 +74,35 @@ export const resetForgotPassword = async (
     token,
     newPassword,
   });
+};
+
+export const loginSocial = async (
+  accessToken: string,
+  provider: SocialProvider,
+  accessTokenSecret?: string
+): Promise<LoginSocialResponse> => {
+  const res = await api.post<LoginSocialResponse>(
+    `auth/login-social/${provider}`,
+    {
+      accessToken,
+      accessTokenSecret,
+    }
+  );
+
+  return res.data;
+};
+
+export const registerSocial = async (
+  name: string,
+  provider: SocialProvider,
+  accessToken: string,
+  accessTokenSecret?: string
+): Promise<User> => {
+  const res = await api.post<User>(`auth/register-social/${provider}`, {
+    name,
+    accessToken,
+    accessTokenSecret,
+  });
+
+  return res.data;
 };
