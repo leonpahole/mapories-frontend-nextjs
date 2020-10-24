@@ -183,7 +183,7 @@ export const UserMap: React.FC<UserMapProps> = ({ userId }) => {
           </ModalBody>
         </Modal>
       )}
-      {map}
+      {/* {map} */}
     </>
   );
 };

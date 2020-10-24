@@ -27,11 +27,13 @@ export const verifyEmail = async (token: string): Promise<AuthUser> => {
 
 export const login = async (
   email: string,
-  password: string
+  password: string,
+  rememberMe: boolean = false
 ): Promise<AuthUser> => {
   const res = await api.post<AuthUser>(`auth/login`, {
     email,
     password,
+    rememberMe,
   });
 
   return res.data;

@@ -13,6 +13,7 @@ import { AlertTheme } from "../types/app";
 import { AuthUser } from "../types/AuthUser";
 import { useAlert } from "../utils/useAlert";
 import SocialLoginButtonRow from "../components/social/SocialLoginButtonRow";
+import { MyCheckbox } from "../components/formik/MyCheckbox";
 
 export const AuthFormContainer = styled.div`
   display: flex;
@@ -116,6 +117,7 @@ const Login: React.FC = () => {
         initialValues={{
           email: "",
           password: "",
+          rememberMe: false,
         }}
         validationSchema={Yup.object({
           email: Yup.string()
@@ -128,7 +130,11 @@ const Login: React.FC = () => {
         })}
         onSubmit={async (values, { resetForm }) => {
           try {
-            const user = await login(values.email, values.password);
+            const user = await login(
+              values.email,
+              values.password,
+              values.rememberMe
+            );
             onLogin(user);
             resetForm();
           } catch (e) {
@@ -173,6 +179,9 @@ const Login: React.FC = () => {
               label="Your password"
               placeholder="Enter your password"
             />
+
+            <MyCheckbox name="rememberMe" label="Remember me?" />
+
             <small>
               <Link to="/forgot-password">Forgot password?</Link>
             </small>
