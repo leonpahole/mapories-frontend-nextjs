@@ -113,3 +113,9 @@ export const registerSocial = async (
 
   return res.data;
 };
+
+export const changePassword = async (newPassword: string) => {
+  await api.post<void>(`auth/change-password`, {
+    newPassword,
+  });
+};
