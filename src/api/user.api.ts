@@ -27,3 +27,9 @@ export const getUserProfile = async (
   );
   return res.data;
 };
+
+export const searchUsers = async (q: string): Promise<UserProfileData[]> => {
+  const res = await api.get<UserProfileData[]>(`user/search?q=${q}`);
+
+  return res.data;
+};

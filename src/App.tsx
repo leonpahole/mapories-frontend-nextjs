@@ -19,6 +19,7 @@ import Profile from "./pages/Profile";
 import { useIsLoggedIn } from "./utils/useAlreadyLoggedInGuard";
 import CreateMapory from "./pages/CreateMapory";
 import { MaporyView } from "./pages/MaporyView";
+import { SearchResults } from "./pages/SearchResults";
 
 const BodyContainer = styled.div`
   padding: 40px 20px;
@@ -63,6 +64,9 @@ const App: React.FC = () => {
         </Route>
         <Route path="/mapory/:id">
           <MaporyView />
+        </Route>
+        <Route path="/search">
+          <SearchResults />
         </Route>
       </>
     );

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import {
   Navbar,
   NavbarToggler,
@@ -6,13 +7,20 @@ import {
   Nav,
   NavItem,
   NavLink,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  FormInput,
   Collapse,
+  Button,
 } from "shards-react";
+
 import { NavLink as Link, useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootStore } from "../redux/store";
 import { logoutAction } from "../redux/auth/auth.actions";
 import { logout } from "../api/auth.api";
+import { useQuery } from "../utils/useQuery";
 
 interface NavLinkItem {
   link?: string;
@@ -32,6 +40,7 @@ const renderNavLinks = (links: NavLinkItem[]) => {
 const NavBar: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
+  const query = useQuery();
   const loggedInUser = useSelector(
     (state: RootStore) => state.auth.loggedInUser
   );
@@ -54,6 +63,14 @@ const NavBar: React.FC = () => {
   };
 
   const isLoggedIn = !!loggedInUser;
+
+  const [searchString, setSearchString] = useState<string>(
+    query.get("q") || ""
+  );
+
+  const doSearch = () => {
+    history.push(`/search?q=${searchString.trim()}`);
+  };
 
   let navLinks: NavLinkItem[] = [];
 
@@ -103,7 +120,31 @@ const NavBar: React.FC = () => {
       <NavbarToggler onClick={toggleCollapse} />
 
       <Collapse open={collapseOpen} navbar>
-        <Nav navbar></Nav>
+        <Nav navbar>
+          {isLoggedIn && (
+            <div className="d-flex justify-content-center align-items-center">
+              <InputGroup size="sm" seamless>
+                <InputGroupAddon type="prepend">
+                  <InputGroupText></InputGroupText>
+                </InputGroupAddon>
+                <FormInput
+                  value={searchString}
+                  onChange={(e: any) => setSearchString(e.target.value)}
+                  className="border-0"
+                  placeholder="Search..."
+                />
+              </InputGroup>
+              <Button
+                disabled={searchString.trim().length === 0}
+                onClick={doSearch}
+                theme="light"
+                className="ml-2"
+              >
+                Search
+              </Button>
+            </div>
+          )}
+        </Nav>
 
         <Nav navbar className="ml-auto">
           {renderNavLinks(navLinks)}
