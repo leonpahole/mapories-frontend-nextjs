@@ -51,7 +51,7 @@ const Profile: React.FC = () => {
   useEffect(() => {
     async function tryGetProfile() {
       try {
-        const userProfile = await getUserProfile(id);
+        const userProfile = await getUserProfile(id ? id : loggedInUser!.id);
         setUserProfileData(userProfile);
       } catch (e) {
         console.log(e);
@@ -77,9 +77,9 @@ const Profile: React.FC = () => {
 
   let selectedTabContent = null;
   if (selectedTab === NavLinks.MAP.name) {
-    selectedTabContent = <UserMap userId={loggedInUser!.id} />;
+    selectedTabContent = <UserMap userId={userProfileData.id} />;
   } else if (selectedTab === NavLinks.MEMORIES.name) {
-    selectedTabContent = <UserMaporiesList userId={loggedInUser!.id} />;
+    selectedTabContent = <UserMaporiesList userId={userProfileData.id} />;
   } else if (selectedTab === NavLinks.PROFILE.name) {
     selectedTabContent = <UserProfile userProfileData={userProfileData} />;
   }
@@ -89,11 +89,11 @@ const Profile: React.FC = () => {
       <Avatar
         round
         maxInitials={3}
-        // src={loggedInUser!.profilePictureUrl}
-        name={loggedInUser!.name}
+        // src={userProfileData.profilePictureUrl}
+        name={userProfileData.name}
       />
 
-      <h4>{loggedInUser!.name}</h4>
+      <h4>{userProfileData.name}</h4>
 
       <Nav pills className="mb-2">
         <NavItem>
