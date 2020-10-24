@@ -8,7 +8,6 @@ import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
 import { AlertTheme } from "../types/app";
 import { useAlert } from "../utils/useAlert";
-import { useAlreadyLoggedInGuard } from "../utils/useAlreadyLoggedInGuard";
 import { AuthForm, AuthFormBottomContainer, AuthFormContainer } from "./login";
 
 type ResendAlertType = "SEND_SUCCESS" | "UNKNOWN_ERROR";
@@ -19,8 +18,6 @@ const ResendAlertTypeInfo: Record<ResendAlertType, AlertTheme> = {
 };
 
 const ResendVerifyAccountEmail: React.FC = () => {
-  useAlreadyLoggedInGuard();
-
   let { email } = useParams();
 
   const { alertOpen, alertTheme, showAlert, closeAlert, alertType } = useAlert<

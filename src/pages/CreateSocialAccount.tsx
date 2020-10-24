@@ -1,20 +1,22 @@
 import { Formik } from "formik";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import Avatar from "react-avatar";
+import ImageUploader from "react-images-upload";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { Button } from "shards-react";
+import styled from "styled-components";
 import * as Yup from "yup";
-import { register, registerSocial } from "../api/auth.api";
+import { registerSocial } from "../api/auth.api";
+import { uploadProfilePicture } from "../api/user.api";
 import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
-import { AlertTheme } from "../types/app";
-import { useAlert } from "../utils/useAlert";
-import { useAlreadyLoggedInGuard } from "../utils/useAlreadyLoggedInGuard";
-import { AuthForm, AuthFormBottomContainer, AuthFormContainer } from "./login";
-import { useSelector, useDispatch } from "react-redux";
-import { RootStore } from "../redux/store";
-import { createSocialAccountAction } from "../redux/createSocialAccount/createSocialAccount.actions";
 import { loginAction } from "../redux/auth/auth.actions";
-import { User } from "../types/User";
+import { RootStore } from "../redux/store";
+import { AlertTheme } from "../types/app";
+import { AuthUser } from "../types/AuthUser";
+import { useAlert } from "../utils/useAlert";
+import { AuthForm, AuthFormBottomContainer, AuthFormContainer } from "./login";
 
 type CreateSocialAccountAlertType = "MISSING_DATA" | "UNKNOWN_ERROR";
 
@@ -26,14 +28,48 @@ const CreateSocialAccountAlertTypeInfo: Record<
   UNKNOWN_ERROR: "danger",
 };
 
-const CreateSocialAccount: React.FC = () => {
-  useAlreadyLoggedInGuard();
+const ProfileImageContainer = styled.div`
+  position: relative;
+`;
 
+const ProfileImage = styled.img`
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+`;
+
+const DeleteImage = styled.div`
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CreateSocialAccount: React.FC = () => {
   const history = useHistory();
 
   const dispatch = useDispatch();
   const createSocialAccountData = useSelector(
     (state: RootStore) => state.createSocialAccount.data
+  );
+
+  const [uploadedProfilePicture, setUploadedProfilePicture] = useState<
+    string | undefined
+  >(createSocialAccountData?.providerData.profilePictureUrl);
+  const [uploadedProfilePictureFile, setUploadedProfilePictureFile] = useState<
+    File | undefined
+  >(undefined);
+
+  const [userName, setUserName] = useState<string | undefined>(
+    createSocialAccountData?.providerData.name
   );
 
   const { alertOpen, alertTheme, showAlert, closeAlert, alertType } = useAlert<
@@ -46,7 +82,7 @@ const CreateSocialAccount: React.FC = () => {
     }
   }, []);
 
-  const onLogin = (user: User) => {
+  const onLogin = (user: AuthUser) => {
     dispatch(loginAction(user));
     history.push("/");
   };
@@ -79,6 +115,18 @@ const CreateSocialAccount: React.FC = () => {
   let form = null;
   const isDataPresent = createSocialAccountData != null;
 
+  const onDrop = (files: File[], pictures: string[]) => {
+    if (pictures.length > 0 && files.length > 0) {
+      setUploadedProfilePicture(pictures[0]);
+      setUploadedProfilePictureFile(files[0]);
+    }
+  };
+
+  const onDeleteProfilePicture = () => {
+    setUploadedProfilePicture(undefined);
+    setUploadedProfilePictureFile(undefined);
+  };
+
   if (isDataPresent) {
     form = (
       <>
@@ -88,10 +136,33 @@ const CreateSocialAccount: React.FC = () => {
           information below and click 'Create an account' when you are ready.
         </p>
 
-        <img
-          width="100"
-          height="100"
-          src={createSocialAccountData!.providerData.profilePicture}
+        <ProfileImageContainer>
+          {uploadedProfilePicture && (
+            <DeleteImage onClick={onDeleteProfilePicture} className="bg-danger">
+              X
+            </DeleteImage>
+          )}
+          {uploadedProfilePicture ? (
+            <ProfileImage src={uploadedProfilePicture} />
+          ) : (
+            <Avatar
+              maxInitials={3}
+              name={
+                userName ? userName : createSocialAccountData!.providerData.name
+              }
+            />
+          )}
+        </ProfileImageContainer>
+        <ImageUploader
+          className="file-uploader"
+          buttonClassName="btn btn-secondary"
+          buttonText="Upload different profile image"
+          onChange={onDrop}
+          imgExtension={[".jpg", ".png"]}
+          maxFileSize={2097152}
+          label={"Max file size: 2mb, accepted: jpg|png"}
+          singleImage={true}
+          withIcon={false}
         />
 
         <Formik
@@ -106,14 +177,35 @@ const CreateSocialAccount: React.FC = () => {
               .max(40, "Name shouldn't be longer than 40 letters!")
               .required("Please enter your name!"),
           })}
-          onSubmit={async (values, { resetForm, setErrors }) => {
+          onSubmit={async (values, { resetForm }) => {
             try {
+              const socialProfilePictureInUse =
+                uploadedProfilePicture ===
+                createSocialAccountData!.providerData.profilePictureUrl;
+
+              let socialProfilePicture: string | undefined = undefined;
+              if (socialProfilePictureInUse) {
+                socialProfilePicture = createSocialAccountData!.providerData
+                  .profilePictureUrl;
+              }
+
               const user = await registerSocial(
                 values.name,
                 createSocialAccountData!.provider,
                 createSocialAccountData!.accessToken,
+                socialProfilePicture,
                 createSocialAccountData!.accessTokenSecret
               );
+
+              if (uploadedProfilePictureFile) {
+                try {
+                  await uploadProfilePicture(uploadedProfilePictureFile);
+                } catch (e) {
+                  console.log("Upload error");
+                  console.log(e);
+                }
+              }
+
               onLogin(user);
               resetForm();
             } catch (e) {
@@ -125,7 +217,7 @@ const CreateSocialAccount: React.FC = () => {
             }
           }}
         >
-          {({ handleSubmit, isSubmitting }) => (
+          {({ handleSubmit, isSubmitting, handleChange }) => (
             <AuthForm onSubmit={handleSubmit}>
               {alert}
 
@@ -136,6 +228,10 @@ const CreateSocialAccount: React.FC = () => {
               />
 
               <MyTextInput
+                onChange={(e: any) => {
+                  setUserName(e.target.value);
+                  handleChange(e);
+                }}
                 name="name"
                 label="Your name"
                 placeholder="Enter your name"

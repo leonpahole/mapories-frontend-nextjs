@@ -15,6 +15,10 @@ import ResendVerifyAccountEmail from "./pages/resendVerifyAccountEmail";
 import ForgotPassword from "./pages/forgotPassword";
 import ResetPassword from "./pages/resetPassword";
 import CreateSocialAccount from "./pages/CreateSocialAccount";
+import Profile from "./pages/Profile";
+import { useIsLoggedIn } from "./utils/useAlreadyLoggedInGuard";
+import CreateMapory from "./pages/CreateMapory";
+import { MaporyView } from "./pages/MaporyView";
 
 const BodyContainer = styled.div`
   padding: 40px 20px;
@@ -23,6 +27,7 @@ const BodyContainer = styled.div`
 const App: React.FC = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(true);
+  const [isLoggedIn] = useIsLoggedIn();
 
   useEffect(() => {
     async function tryGetProfile() {
@@ -46,33 +51,56 @@ const App: React.FC = () => {
     return <Loading />;
   }
 
+  let routes = null;
+  if (isLoggedIn) {
+    routes = (
+      <>
+        <Route path="/profile/:id?">
+          <Profile />
+        </Route>
+        <Route path="/create-mapory">
+          <CreateMapory />
+        </Route>
+        <Route path="/mapory/:id">
+          <MaporyView />
+        </Route>
+      </>
+    );
+  } else {
+    routes = (
+      <>
+        <Route path="/login">
+          <Login />
+        </Route>
+        <Route path="/register">
+          <Register />
+        </Route>
+        <Route path="/resend-verify-account-email/:email?">
+          <ResendVerifyAccountEmail />
+        </Route>
+        <Route path="/verify-email/:token">
+          <VerifyEmail />
+        </Route>
+        <Route path="/forgot-password">
+          <ForgotPassword />
+        </Route>
+        <Route path="/reset-password/:token">
+          <ResetPassword />
+        </Route>
+        <Route path="/create-social-account">
+          <CreateSocialAccount />
+        </Route>
+      </>
+    );
+  }
+
   return (
     <>
       <Router>
         <NavBar />
         <BodyContainer>
           <Switch>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <Route path="/register">
-              <Register />
-            </Route>
-            <Route path="/resend-verify-account-email/:email?">
-              <ResendVerifyAccountEmail />
-            </Route>
-            <Route path="/verify-email/:token">
-              <VerifyEmail />
-            </Route>
-            <Route path="/forgot-password">
-              <ForgotPassword />
-            </Route>
-            <Route path="/reset-password/:token">
-              <ResetPassword />
-            </Route>
-            <Route path="/create-social-account">
-              <CreateSocialAccount />
-            </Route>
+            {routes}
             <Route path="/">
               <div>Home</div>
             </Route>

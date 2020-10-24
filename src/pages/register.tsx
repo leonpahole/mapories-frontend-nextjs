@@ -1,6 +1,6 @@
 import { Formik } from "formik";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { Button } from "shards-react";
 import * as Yup from "yup";
 import { register } from "../api/auth.api";
@@ -8,8 +8,11 @@ import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
 import { AlertTheme } from "../types/app";
 import { useAlert } from "../utils/useAlert";
-import { useAlreadyLoggedInGuard } from "../utils/useAlreadyLoggedInGuard";
 import { AuthForm, AuthFormBottomContainer, AuthFormContainer } from "./login";
+import SocialLoginButtonRow from "../components/social/SocialLoginButtonRow";
+import { AuthUser } from "../types/AuthUser";
+import { loginAction } from "../redux/auth/auth.actions";
+import { useDispatch } from "react-redux";
 
 type RegisterAlertType = "REGISTER_SUCCESS" | "UNKNOWN_ERROR";
 
@@ -19,7 +22,8 @@ const RegisterAlertTypeInfo: Record<RegisterAlertType, AlertTheme> = {
 };
 
 const Register: React.FC = () => {
-  useAlreadyLoggedInGuard();
+  const history = useHistory();
+  const dispatch = useDispatch();
 
   const { alertOpen, alertTheme, showAlert, closeAlert, alertType } = useAlert<
     RegisterAlertType
@@ -57,10 +61,17 @@ const Register: React.FC = () => {
     }
   }
 
+  const onSocialLogin = (user: AuthUser) => {
+    dispatch(loginAction(user));
+    history.push("/");
+  };
+
   return (
     <AuthFormContainer>
       <h1>Register</h1>
       <p>Create your free Map'o'ries account.</p>
+
+      <SocialLoginButtonRow onLogin={onSocialLogin} />
 
       <Formik
         validateOnBlur={false}

@@ -1,11 +1,11 @@
-import { User } from "../../types/User";
+import { AuthUser } from "../../types/AuthUser";
 
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS";
 
 export interface LoginSuccess {
   type: typeof LOGIN_SUCCESS;
-  payload: User;
+  payload: AuthUser;
 }
 
 export interface LogoutSuccess {

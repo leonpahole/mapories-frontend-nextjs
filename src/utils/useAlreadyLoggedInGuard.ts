@@ -1,14 +1,10 @@
-import { useHistory } from "react-router-dom";
 import { RootStore } from "../redux/store";
 import { useSelector } from "react-redux";
 
-export const useAlreadyLoggedInGuard = () => {
-  const history = useHistory();
+export const useIsLoggedIn = () => {
   const loggedInUser = useSelector(
     (state: RootStore) => state.auth.loggedInUser
   );
 
-  if (loggedInUser) {
-    history.push("/");
-  }
+  return [loggedInUser != null];
 };

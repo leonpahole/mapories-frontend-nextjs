@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useAlreadyLoggedInGuard } from "../utils/useAlreadyLoggedInGuard";
 import { useParams, Link } from "react-router-dom";
 import { verifyEmail as verifyAccount } from "../api/auth.api";
 import { Loading } from "../components/Loading";
-import { User } from "../types/User";
+import { AuthUser } from "../types/AuthUser";
 
 const VerifyEmail: React.FC = () => {
-  useAlreadyLoggedInGuard();
-
   const [loading, setLoading] = useState<boolean>(true);
-  const [verifiedUser, setVerifiedUser] = useState<User | null>(null);
+  const [verifiedUser, setVerifiedUser] = useState<AuthUser | null>(null);
   let { token } = useParams();
 
   useEffect(() => {

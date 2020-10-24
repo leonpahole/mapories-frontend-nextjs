@@ -12,7 +12,6 @@ import { Loading } from "../components/Loading";
 import { MyAlert } from "../components/MyAlert";
 import { AlertTheme } from "../types/app";
 import { useAlert } from "../utils/useAlert";
-import { useAlreadyLoggedInGuard } from "../utils/useAlreadyLoggedInGuard";
 import { AuthForm, AuthFormBottomContainer, AuthFormContainer } from "./login";
 
 type ResetPasswordAlertType = "RESET_SUCCESS" | "UNKNOWN_ERROR";
@@ -23,8 +22,6 @@ const ResetPasswordAlertTypeInfo: Record<ResetPasswordAlertType, AlertTheme> = {
 };
 
 const ResetPassword: React.FC = () => {
-  useAlreadyLoggedInGuard();
-
   const [isTokenValid, setIsTokenValid] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(true);
 

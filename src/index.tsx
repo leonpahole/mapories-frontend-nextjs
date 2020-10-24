@@ -8,6 +8,7 @@ import SnackbarProvider from "react-simple-snackbar";
 
 import "./util.css";
 import "./shards.override.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 ReactDOM.render(
   <SnackbarProvider>

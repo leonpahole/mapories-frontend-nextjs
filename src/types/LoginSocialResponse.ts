@@ -1,14 +1,14 @@
-import { User } from "./User";
+import { AuthUser } from "./AuthUser";
 import { SocialProvider } from "../api/auth.api";
 
 export interface SocialProviderData {
   name: string;
   email: string;
-  profilePicture?: string;
+  profilePictureUrl?: string;
 }
 
 export interface LoginSocialResponse {
-  existingUser: User | null;
+  existingUser: AuthUser | null;
   nonExistingUser: SocialProviderData | null;
 }
 

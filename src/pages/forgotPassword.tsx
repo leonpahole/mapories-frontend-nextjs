@@ -7,7 +7,6 @@ import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
 import { AlertTheme } from "../types/app";
 import { useAlert } from "../utils/useAlert";
-import { useAlreadyLoggedInGuard } from "../utils/useAlreadyLoggedInGuard";
 import { AuthForm, AuthFormBottomContainer, AuthFormContainer } from "./login";
 
 type SendForgotPasswordEmailAlertType = "SEND_SUCCESS" | "UNKNOWN_ERROR";
@@ -21,8 +20,6 @@ const SendForgotPasswordEmailAlertTypeInfo: Record<
 };
 
 const ForgotPassword: React.FC = () => {
-  useAlreadyLoggedInGuard();
-
   const { alertOpen, alertTheme, showAlert, closeAlert, alertType } = useAlert<
     SendForgotPasswordEmailAlertType
   >(SendForgotPasswordEmailAlertTypeInfo);

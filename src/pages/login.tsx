@@ -10,9 +10,8 @@ import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
 import { loginAction } from "../redux/auth/auth.actions";
 import { AlertTheme } from "../types/app";
-import { User } from "../types/User";
+import { AuthUser } from "../types/AuthUser";
 import { useAlert } from "../utils/useAlert";
-import { useAlreadyLoggedInGuard } from "../utils/useAlreadyLoggedInGuard";
 import SocialLoginButtonRow from "../components/social/SocialLoginButtonRow";
 
 export const AuthFormContainer = styled.div`
@@ -49,8 +48,6 @@ const LoginAlertTypeInfo: Record<LoginAlertType, AlertTheme> = {
 };
 
 const Login: React.FC = () => {
-  useAlreadyLoggedInGuard();
-
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -100,7 +97,7 @@ const Login: React.FC = () => {
     }
   }
 
-  const onLogin = (user: User) => {
+  const onLogin = (user: AuthUser) => {
     dispatch(loginAction(user));
     history.push("/");
     setUnverifiedEmailAddress(null);
