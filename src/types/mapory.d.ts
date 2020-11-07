@@ -1,4 +1,5 @@
 import { UserProfileData } from "./UserProfile";
+import { UserExcerpt } from "./UserExcerpt";
 
 export type MaporyExcerpt = {
   id: string;
@@ -8,9 +9,11 @@ export type MaporyExcerpt = {
   placeName: string;
   latitude: number;
   longitude: number;
+  likesAmount: number;
+  myLike: boolean;
 };
 
 export type Mapory = {
   mapory: MaporyExcerpt;
-  author: UserProfileData;
+  author: UserExcerpt;
 };

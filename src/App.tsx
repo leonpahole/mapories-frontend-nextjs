@@ -20,6 +20,8 @@ import { useIsLoggedIn } from "./utils/useAlreadyLoggedInGuard";
 import CreateMapory from "./pages/CreateMapory";
 import { MaporyView } from "./pages/MaporyView";
 import { SearchResults } from "./pages/SearchResults";
+import CreatePost from "./pages/CreatePost";
+import { PostView } from "./pages/PostView";
 
 const BodyContainer = styled.div`
   padding: 40px 20px;
@@ -67,6 +69,12 @@ const App: React.FC = () => {
         </Route>
         <Route path="/search">
           <SearchResults />
+        </Route>
+        <Route path="/create-post">
+          <CreatePost />
+        </Route>
+        <Route path="/post/:id">
+          <PostView />
         </Route>
       </>
     );

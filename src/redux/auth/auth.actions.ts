@@ -1,7 +1,7 @@
 import { LOGIN_SUCCESS, LOGOUT_SUCCESS } from "./auth.actionTypes";
-import { AuthUser } from "../../types/AuthUser";
+import { UserExcerpt } from "../../types/UserExcerpt";
 
-export const loginAction = (user: AuthUser) => {
+export const loginAction = (user: UserExcerpt) => {
   return {
     type: LOGIN_SUCCESS,
     payload: user,

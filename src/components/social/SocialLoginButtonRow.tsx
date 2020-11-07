@@ -12,7 +12,7 @@ import {
 import { FaFacebook, FaFacebookF, FaTwitter } from "react-icons/fa";
 import TwitterLogin from "react-twitter-auth";
 import { SocialProvider, loginSocial } from "../../api/auth.api";
-import { AuthUser } from "../../types/AuthUser";
+import { UserExcerpt } from "../../types/UserExcerpt";
 import { SocialProviderData } from "../../types/LoginSocialResponse";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
@@ -26,7 +26,7 @@ interface TwitterAccessTokenResponse {
 }
 
 interface SocialLoginButtonRowProps {
-  onLogin(user: AuthUser): void;
+  onLogin(user: UserExcerpt): void;
 }
 
 const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({

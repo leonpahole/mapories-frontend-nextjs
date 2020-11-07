@@ -1,4 +1,4 @@
-import { AuthUser } from "./AuthUser";
+import { UserExcerpt } from "./UserExcerpt";
 import { SocialProvider } from "../api/auth.api";
 
 export interface SocialProviderData {
@@ -8,7 +8,7 @@ export interface SocialProviderData {
 }
 
 export interface LoginSocialResponse {
-  existingUser: AuthUser | null;
+  existingUser: UserExcerpt | null;
   nonExistingUser: SocialProviderData | null;
 }
 

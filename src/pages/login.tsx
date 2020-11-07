@@ -10,7 +10,7 @@ import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
 import { loginAction } from "../redux/auth/auth.actions";
 import { AlertTheme } from "../types/app";
-import { AuthUser } from "../types/AuthUser";
+import { UserExcerpt } from "../types/UserExcerpt";
 import { useAlert } from "../utils/useAlert";
 import SocialLoginButtonRow from "../components/social/SocialLoginButtonRow";
 import { MyCheckbox } from "../components/formik/MyCheckbox";
@@ -98,7 +98,7 @@ const Login: React.FC = () => {
     }
   }
 
-  const onLogin = (user: AuthUser) => {
+  const onLogin = (user: UserExcerpt) => {
     dispatch(loginAction(user));
     history.push("/");
     setUnverifiedEmailAddress(null);

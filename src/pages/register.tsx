@@ -10,7 +10,7 @@ import { AlertTheme } from "../types/app";
 import { useAlert } from "../utils/useAlert";
 import { AuthForm, AuthFormBottomContainer, AuthFormContainer } from "./login";
 import SocialLoginButtonRow from "../components/social/SocialLoginButtonRow";
-import { AuthUser } from "../types/AuthUser";
+import { UserExcerpt } from "../types/UserExcerpt";
 import { loginAction } from "../redux/auth/auth.actions";
 import { useDispatch } from "react-redux";
 
@@ -61,7 +61,7 @@ const Register: React.FC = () => {
     }
   }
 
-  const onSocialLogin = (user: AuthUser) => {
+  const onSocialLogin = (user: UserExcerpt) => {
     dispatch(loginAction(user));
     history.push("/");
   };

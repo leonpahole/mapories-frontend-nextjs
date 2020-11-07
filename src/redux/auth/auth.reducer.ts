@@ -3,10 +3,10 @@ import {
   LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
 } from "./auth.actionTypes";
-import { AuthUser } from "../../types/AuthUser";
+import { UserExcerpt } from "../../types/UserExcerpt";
 
 interface AuthStateI {
-  loggedInUser?: AuthUser;
+  loggedInUser?: UserExcerpt;
 }
 
 const defaultState: AuthStateI = {

@@ -11,24 +11,20 @@ import { RootStore } from "../../redux/store";
 
 interface UserProfileProps {
   userProfileData: UserProfileData;
+  isMe: boolean;
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({
   userProfileData: userProfile,
+  isMe,
 }) => {
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
-
-  let changePasswordAvailable = loggedInUser?.id === userProfile.id;
-
   return (
     <div>
       <p>
         <b>Display name:</b> {userProfile.name}
       </p>
 
-      {changePasswordAvailable && (
+      {isMe && (
         <>
           <h4>Password</h4>
           <p>Change your password</p>

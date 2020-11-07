@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { verifyEmail as verifyAccount } from "../api/auth.api";
 import { Loading } from "../components/Loading";
-import { AuthUser } from "../types/AuthUser";
+import { UserExcerpt } from "../types/UserExcerpt";
 
 const VerifyEmail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
-  const [verifiedUser, setVerifiedUser] = useState<AuthUser | null>(null);
+  const [verifiedUser, setVerifiedUser] = useState<UserExcerpt | null>(null);
   let { token } = useParams();
 
   useEffect(() => {

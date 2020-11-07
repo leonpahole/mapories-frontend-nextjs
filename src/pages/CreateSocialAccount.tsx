@@ -14,7 +14,7 @@ import { MyAlert } from "../components/MyAlert";
 import { loginAction } from "../redux/auth/auth.actions";
 import { RootStore } from "../redux/store";
 import { AlertTheme } from "../types/app";
-import { AuthUser } from "../types/AuthUser";
+import { UserExcerpt } from "../types/UserExcerpt";
 import { useAlert } from "../utils/useAlert";
 import { AuthForm, AuthFormBottomContainer, AuthFormContainer } from "./login";
 
@@ -82,7 +82,7 @@ const CreateSocialAccount: React.FC = () => {
     }
   }, []);
 
-  const onLogin = (user: AuthUser) => {
+  const onLogin = (user: UserExcerpt) => {
     dispatch(loginAction(user));
     history.push("/");
   };

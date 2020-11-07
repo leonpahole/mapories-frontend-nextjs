@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { MaporyExcerpt } from "../../types/mapory";
-import { getMaporiesForUser } from "../../api/mapory.api";
+import {
+  getMaporiesForUser,
+  likeMapory,
+  unlikeMapory,
+} from "../../api/mapory.api";
 import { Loading } from "../Loading";
 import { Link } from "react-router-dom";
-import { Card, CardBody, CardTitle, CardSubtitle } from "shards-react";
+import { Card, CardBody, CardTitle, CardSubtitle, Button } from "shards-react";
+import { MaporyCard } from "../mapory/maporyCard";
 
 interface UserMaporiesListProps {
   userId: string;
@@ -36,26 +41,38 @@ export const UserMaporiesList: React.FC<UserMaporiesListProps> = ({
 
   let maporiesList = null;
 
+  const modifyMaporiesWhenLikeOrUnlike = async (
+    mapory: MaporyExcerpt,
+    isLike: boolean
+  ) => {
+    setMapories((mList) => {
+      return mList.map((m) => {
+        if (m.id !== mapory.id) {
+          return m;
+        }
+
+        return {
+          ...m,
+          likesAmount: m.likesAmount + (isLike ? 1 : -1),
+          myLike: isLike,
+        };
+      });
+    });
+  };
+
   if (mapories.length === 0) {
     maporiesList = <div>No mapories yet.</div>;
   } else {
     maporiesList = (
       <div>
         {mapories.map((m) => (
-          <Card className="mb-3">
-            <CardBody>
-              <CardTitle>{m.name}</CardTitle>
-              <CardSubtitle>
-                {m.placeName} - {m.visitDate}
-              </CardSubtitle>
-              {m.description}
-              <Link to={`/mapory/${m.id}`}>
-                <small className="text-secondary c-pointer block mt-3 mb-3">
-                  See details
-                </small>
-              </Link>
-            </CardBody>
-          </Card>
+          <MaporyCard
+            mapory={m}
+            onLikeOrUnlike={(isLike: boolean) =>
+              modifyMaporiesWhenLikeOrUnlike(m, isLike)
+            }
+            showSeeDetails={true}
+          />
         ))}
       </div>
     );

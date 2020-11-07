@@ -1,4 +1,4 @@
-import { AuthUser } from "../types/AuthUser";
+import { UserExcerpt } from "../types/UserExcerpt";
 import { api } from "./api";
 import { LoginSocialResponse } from "../types/LoginSocialResponse";
 
@@ -8,8 +8,8 @@ export const register = async (
   email: string,
   name: string,
   password: string
-): Promise<AuthUser> => {
-  const res = await api.post<AuthUser>(`auth/register`, {
+): Promise<UserExcerpt> => {
+  const res = await api.post<UserExcerpt>(`auth/register`, {
     email,
     name,
     password,
@@ -18,8 +18,8 @@ export const register = async (
   return res.data;
 };
 
-export const verifyEmail = async (token: string): Promise<AuthUser> => {
-  const res = await api.post<AuthUser>(`auth/verify-account`, {
+export const verifyEmail = async (token: string): Promise<UserExcerpt> => {
+  const res = await api.post<UserExcerpt>(`auth/verify-account`, {
     token,
   });
   return res.data;
@@ -29,8 +29,8 @@ export const login = async (
   email: string,
   password: string,
   rememberMe: boolean = false
-): Promise<AuthUser> => {
-  const res = await api.post<AuthUser>(`auth/login`, {
+): Promise<UserExcerpt> => {
+  const res = await api.post<UserExcerpt>(`auth/login`, {
     email,
     password,
     rememberMe,
@@ -103,8 +103,8 @@ export const registerSocial = async (
   accessToken: string,
   profilePictureUrl?: string,
   accessTokenSecret?: string
-): Promise<AuthUser> => {
-  const res = await api.post<AuthUser>(`auth/register-social/${provider}`, {
+): Promise<UserExcerpt> => {
+  const res = await api.post<UserExcerpt>(`auth/register-social/${provider}`, {
     name,
     accessToken,
     accessTokenSecret,
