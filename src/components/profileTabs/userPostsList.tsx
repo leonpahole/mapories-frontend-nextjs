@@ -68,6 +68,12 @@ export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
     });
   };
 
+  const updatePostsOnPostDelete = async (postId: string) => {
+    setPosts((pList) => {
+      return pList.filter((p) => p.post.id !== postId);
+    });
+  };
+
   if (posts.length === 0) {
     postsList = <div>No posts yet.</div>;
   } else {
@@ -81,6 +87,7 @@ export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
             onLikeOrUnlike={(isLike: boolean) =>
               updatePostsOnLikeOrUnlike(p, isLike)
             }
+            onDelete={() => updatePostsOnPostDelete(p.post.id)}
           />
         ))}
       </div>
@@ -89,12 +96,12 @@ export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
 
   return (
     <div>
-      <Link to="/create-post">
+      <Link to="/create-or-update-post">
         <small className="text-secondary c-pointer block mt-3 mb-3">
           Create a post
         </small>
       </Link>
-      <Link to="/create-mapory">
+      <Link to="/create-or-update-mapory">
         <small className="text-secondary c-pointer block mt-3 mb-3">
           Create a mapory
         </small>

@@ -17,9 +17,9 @@ import ResetPassword from "./pages/resetPassword";
 import CreateSocialAccount from "./pages/CreateSocialAccount";
 import Profile from "./pages/Profile";
 import { useIsLoggedIn } from "./utils/useAlreadyLoggedInGuard";
-import CreateMapory from "./pages/CreateMapory";
+import CreateOrUpdateMapory from "./pages/CreateOrUpdateMapory";
 import { SearchResults } from "./pages/SearchResults";
-import CreatePost from "./pages/CreatePost";
+import CreateOrUpdatePost from "./pages/CreateOrUpdatePost";
 import { PostView } from "./pages/PostView";
 
 const BodyContainer = styled.div`
@@ -60,14 +60,14 @@ const App: React.FC = () => {
         <Route path="/profile/:id?">
           <Profile />
         </Route>
-        <Route path="/create-mapory">
-          <CreateMapory />
+        <Route path="/create-or-update-mapory/:id?">
+          <CreateOrUpdateMapory />
         </Route>
         <Route path="/search">
           <SearchResults />
         </Route>
-        <Route path="/create-post">
-          <CreatePost />
+        <Route path="/create-or-update-post/:id?">
+          <CreateOrUpdatePost />
         </Route>
         <Route path="/post/:id">
           <PostView />

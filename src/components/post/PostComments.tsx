@@ -74,6 +74,27 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
     });
   };
 
+  const modifyCommentsWhenUpdate = (id: string, content: string) => {
+    setComments((cList) => {
+      return cList.map((c) => {
+        if (c.id !== id) {
+          return c;
+        }
+
+        return {
+          ...c,
+          content,
+        };
+      });
+    });
+  };
+
+  const modifyCommentsWhenDelete = (id: string) => {
+    setComments((cList) => {
+      return cList.filter((c) => c.id !== id);
+    });
+  };
+
   if (comments.length === 0 && loadingComments) {
     return <Loading />;
   }
@@ -92,6 +113,10 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
                 postId={postId}
                 onLikeOrUnlike={(l) => modifyCommentWhenLikeOrUnlike(c, l)}
                 comment={c}
+                onEdited={(content: string) =>
+                  modifyCommentsWhenUpdate(c.id, content)
+                }
+                onDeleted={() => modifyCommentsWhenDelete(c.id)}
               />
             );
           })}
@@ -106,7 +131,7 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
         validateOnBlur={false}
         validateOnChange={false}
         initialValues={{
-          content: null,
+          content: "",
         }}
         validationSchema={Yup.object({
           content: Yup.string().required("Please enter content!"),

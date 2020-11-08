@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 import { Card, CardBody, CardTitle } from "shards-react";
 import { getPostById } from "../api/post.api";
 import { Loading } from "../components/Loading";
@@ -26,6 +26,7 @@ export const PostView: React.FC<{}> = ({}) => {
   const [loadingPost, setLoadingPost] = useState<boolean>(true);
 
   let { id } = useParams();
+  const history = useHistory();
 
   useEffect(() => {
     async function fetchPost() {
@@ -63,6 +64,10 @@ export const PostView: React.FC<{}> = ({}) => {
     setPost((p) => updatePostWithLikeOrUnlike(p!, isLike));
   };
 
+  const onPostDeleted = () => {
+    history.push("/");
+  };
+
   if (loadingPost) {
     return <Loading />;
   }
@@ -78,6 +83,7 @@ export const PostView: React.FC<{}> = ({}) => {
       showAuthor={true}
       showComments={true}
       onLikeOrUnlike={modifyPostWhenLikeOrUnlike}
+      onDelete={onPostDeleted}
     />
   );
 };

@@ -3,10 +3,10 @@ import "react-map-gl-geocoder/dist/mapbox-gl-geocoder.css";
 
 import { Formik } from "formik";
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Button } from "shards-react";
 import * as Yup from "yup";
-import { createMapory } from "../api/post.api";
+import { createMapory, getPostById, updateMapory } from "../api/post.api";
 import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
 import { AlertTheme } from "../types/app";
@@ -16,21 +16,30 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import MapGL, { PointerEvent, Marker, FlyToInterpolator } from "react-map-gl";
 import Geocoder from "react-map-gl-geocoder";
+import { Loading } from "../components/Loading";
+import { Post } from "../types/Post";
 
 dayjs.extend(customParseFormat);
 
-interface CreateMaporyInputType {
+interface CreateOrUpdateMaporyInputType {
   content: string | null;
   rating: number | null;
   placeName: string | null;
   visitDate: string;
 }
 
-type CreateMaporyAlertType = "UNKNOWN_ERROR" | "CREATE_MAPORY_SUCCESS";
+type CreateOrUpdateMaporyAlertType =
+  | "UNKNOWN_ERROR"
+  | "CREATE_MAPORY_SUCCESS"
+  | "UPDATE_MAPORY_SUCCESS";
 
-const CreateMaporyAlertTypeInfo: Record<CreateMaporyAlertType, AlertTheme> = {
+const CreateOrUpdateMaporyAlertTypeInfo: Record<
+  CreateOrUpdateMaporyAlertType,
+  AlertTheme
+> = {
   UNKNOWN_ERROR: "danger",
   CREATE_MAPORY_SUCCESS: "success",
+  UPDATE_MAPORY_SUCCESS: "success",
 };
 
 function parseDateString(_: string, originalValue: string) {
@@ -45,12 +54,49 @@ const originalViewPort = {
   transitionInterpolator: new FlyToInterpolator(),
 };
 
-const CreateMapory: React.FC = () => {
+const CreateOrUpdateMapory: React.FC = () => {
+  let { id } = useParams();
+
   const { alertOpen, alertTheme, showAlert, closeAlert, alertType } = useAlert<
-    CreateMaporyAlertType
-  >(CreateMaporyAlertTypeInfo);
+    CreateOrUpdateMaporyAlertType
+  >(CreateOrUpdateMaporyAlertTypeInfo);
 
   const [createdMaporyId, setCreatedMaporyId] = useState<null | string>(null);
+  const [maporyToUpdate, setMaporyToUpdate] = useState<Post | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const [locationUnsetError, setLocationUnsetError] = useState<boolean>(false);
+  const [locationEnabled, setLocationEnabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      setLocationEnabled(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    async function fetchMaporyToUpdate() {
+      if (id) {
+        const post = await getPostById(id);
+        if (post.post.mapory) {
+          setMaporyToUpdate(post);
+          handleResult({
+            result: {
+              center: [
+                post.post.mapory.location.longitude,
+                post.post.mapory.location.latitude,
+              ],
+              text: post.post.mapory.placeName,
+            },
+          });
+        }
+      }
+
+      setLoading(false);
+    }
+
+    fetchMaporyToUpdate();
+  }, [id]);
 
   const [viewport, setViewport] = useState(originalViewPort);
 
@@ -102,6 +148,10 @@ const CreateMapory: React.FC = () => {
     setLongitude(null);
   }, [setLatitude, setLongitude]);
 
+  if (loading) {
+    return <Loading />;
+  }
+
   let alertContent: any = null;
 
   if (alertType != null) {
@@ -110,6 +160,18 @@ const CreateMapory: React.FC = () => {
         <>
           <p>Mapory created!</p>
           <Link to={`/post/${createdMaporyId}`} target="_blank">
+            View mapory
+          </Link>
+        </>
+      );
+    } else if (
+      alertType === "UPDATE_MAPORY_SUCCESS" &&
+      maporyToUpdate != null
+    ) {
+      alertContent = (
+        <>
+          <p>Mapory updated!</p>
+          <Link to={`/post/${maporyToUpdate.post.id}`} target="_blank">
             View mapory
           </Link>
         </>
@@ -131,14 +193,6 @@ const CreateMapory: React.FC = () => {
   };
 
   const locationNotSet = latitude == null || longitude == null;
-  const [locationUnsetError, setLocationUnsetError] = useState<boolean>(false);
-
-  const [locationEnabled, setLocationEnabled] = useState<boolean>(false);
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      setLocationEnabled(true);
-    }
-  }, []);
 
   const useCurrentPosition = () => {
     navigator.geolocation.getCurrentPosition(function (position) {
@@ -151,18 +205,25 @@ const CreateMapory: React.FC = () => {
 
   return (
     <AuthFormContainer>
-      <h1>Create a mapory</h1>
-      <p>Create your map memory.</p>
-      {locationNotSet ? "true" : "false"}
+      <h1>{maporyToUpdate ? "Update" : "Create"} a mapory</h1>
+      <p>{maporyToUpdate ? "Update" : "Create"} your map memory.</p>
 
-      <Formik<CreateMaporyInputType>
+      <Formik<CreateOrUpdateMaporyInputType>
         validateOnBlur={false}
         validateOnChange={false}
         initialValues={{
-          content: null,
-          rating: null,
-          placeName: null,
-          visitDate: dayjs().format("DD. MM. YYYY"),
+          content: maporyToUpdate ? maporyToUpdate.post.content : null,
+          rating: maporyToUpdate
+            ? maporyToUpdate.post.mapory!.rating || null
+            : null,
+          placeName: maporyToUpdate
+            ? maporyToUpdate.post.mapory!.placeName
+            : null,
+          visitDate: maporyToUpdate
+            ? dayjs(maporyToUpdate.post.mapory!.visitDate).format(
+                "DD. MM. YYYY"
+              )
+            : dayjs().format("DD. MM. YYYY"),
         }}
         validationSchema={Yup.object({
           content: Yup.string().required("Please enter post content!"),
@@ -192,21 +253,38 @@ const CreateMapory: React.FC = () => {
 
           try {
             const visitDate = dayjs(values.visitDate, "DD. MM. YYYY").toDate();
-            const { post: mapory } = await createMapory(
-              values.content!,
-              latitude!,
-              longitude!,
-              placeName,
-              visitDate,
-              values.rating
-            );
-            setCreatedMaporyId(mapory.id);
-            showAlert("CREATE_MAPORY_SUCCESS");
-            resetForm();
-            setViewport(originalViewPort);
-            setLatitude(null);
-            setLongitude(null);
-            setPlaceName("");
+
+            if (maporyToUpdate) {
+              await updateMapory(
+                maporyToUpdate.post.id,
+                values.content!,
+                latitude!,
+                longitude!,
+                placeName,
+                visitDate,
+                values.rating
+              );
+
+              showAlert("UPDATE_MAPORY_SUCCESS");
+            } else {
+              const { post: mapory } = await createMapory(
+                values.content!,
+                latitude!,
+                longitude!,
+                placeName,
+                visitDate,
+                values.rating
+              );
+
+              setCreatedMaporyId(mapory.id);
+              showAlert("CREATE_MAPORY_SUCCESS");
+              resetForm();
+
+              setViewport(originalViewPort);
+              setLatitude(null);
+              setLongitude(null);
+              setPlaceName("");
+            }
           } catch (e) {
             console.log(e);
             showAlert("UNKNOWN_ERROR");
@@ -401,7 +479,7 @@ const CreateMapory: React.FC = () => {
 
             <div className="d-flex mt-3">
               <Button disabled={isSubmitting} type="submit">
-                Create mapory!
+                {maporyToUpdate ? "Update" : "Create"} mapory!
               </Button>
             </div>
           </AuthForm>
@@ -411,4 +489,4 @@ const CreateMapory: React.FC = () => {
   );
 };
 
-export default CreateMapory;
+export default CreateOrUpdateMapory;

@@ -2,10 +2,11 @@ import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardBody, CardTitle, Button } from "shards-react";
 import { Post } from "../../types/Post";
-import { unlikePost, likePost } from "../../api/post.api";
+import { unlikePost, likePost, deletePost } from "../../api/post.api";
 import MapGL, { Marker, FlyToInterpolator } from "react-map-gl";
-import { Comment } from "../../types/Comment";
 import { PostComments } from "./PostComments";
+import { useSelector } from "react-redux";
+import { RootStore } from "../../redux/store";
 
 interface PostCardProps {
   postInfo: Post;
@@ -14,6 +15,7 @@ interface PostCardProps {
   onLikeOrUnlike(isLike: boolean): void;
   showMap?: boolean;
   showComments?: boolean;
+  onDelete(): void;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -21,10 +23,15 @@ export const PostCard: React.FC<PostCardProps> = ({
   showAuthor = false,
   showSeeDetails = false,
   onLikeOrUnlike,
+  onDelete,
   showMap = false,
   showComments = false,
 }) => {
   const { post, author } = postInfo;
+
+  const loggedInUser = useSelector(
+    (state: RootStore) => state.auth.loggedInUser
+  );
 
   const likeOrUnlike = async () => {
     try {
@@ -53,7 +60,17 @@ export const PostCard: React.FC<PostCardProps> = ({
     []
   );
 
+  const onDeleteClick = async () => {
+    try {
+      await deletePost(post.id);
+      onDelete();
+    } catch (e) {
+      alert("Error");
+    }
+  };
+
   const isMapory = post.mapory != null;
+  const isMine = loggedInUser!.id === author.id;
 
   return (
     <>
@@ -79,7 +96,28 @@ export const PostCard: React.FC<PostCardProps> = ({
                 </small>
               </Link>
             )}
+            {isMine && (
+              <>
+                <Link
+                  to={`/create-or-update-${isMapory ? "mapory" : "post"}/${
+                    post.id
+                  }`}
+                >
+                  <small className="text-secondary c-pointer block mt-3 mb-3">
+                    Edit post
+                  </small>
+                </Link>
+                <Button onClick={onDeleteClick}>Delete</Button>
+              </>
+            )}
             <p>Likes: {post.likes.likesAmount}</p>
+            {post.mapory && (
+              <div>
+                <p>Place name: {post.mapory.placeName}</p>
+                <p>Visit date: {post.mapory.visitDate}</p>
+                <p>Rating: {post.mapory.rating || "-"}</p>
+              </div>
+            )}
             <div className="d-flex">
               <Button onClick={likeOrUnlike}>
                 {post.likes.myLike ? "Unlike" : "Like"}
@@ -88,7 +126,6 @@ export const PostCard: React.FC<PostCardProps> = ({
           </CardBody>
         </Card>
       </div>
-      {showComments && <PostComments postId={post.id} />}
       {isMapory && showMap && (
         <MapGL
           mapStyle="mapbox://styles/leonpahole/ckg8dkn8k6fmt1as4ausxm0pr"
@@ -199,6 +236,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           </Marker>
         </MapGL>
       )}
+      {showComments && <PostComments postId={post.id} />}
     </>
   );
 };
