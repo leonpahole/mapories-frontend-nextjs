@@ -1,22 +1,27 @@
 import { api } from "./api";
 import { Post } from "../types/Post";
 import { Comment } from "../types/Comment";
+import { PaginatedResponse } from "../types/PaginatedResponse";
+import { MaporyMapItem } from "../types/MaporyMapItem";
 
 export const getPostsForUser = async (
-  userId: string | null = null
-): Promise<Post[]> => {
-  const res = await api.get<Post[]>(`post/my/${userId ? userId : ""}`);
+  userId: string | null = null,
+  pageNumber: number,
+  pageSize: number = 10
+): Promise<PaginatedResponse<Post>> => {
+  const res = await api.get<PaginatedResponse<Post>>(
+    `post/my${
+      userId ? "/" + userId : ""
+    }?pageNum=${pageNumber}&pageSize=${pageSize}`
+  );
 
   return res.data;
 };
 
-export const getMaporiesForUser = async (
+export const getMapDataForUser = async (
   userId: string | null = null
-): Promise<Post[]> => {
-  const res = await api.get<Post[]>(
-    `post/my${userId ? "/" + userId : ""}?type=mapory`
-  );
-
+): Promise<MaporyMapItem[]> => {
+  const res = await api.get<MaporyMapItem[]>(`post/my-mapories/${userId}`);
   return res.data;
 };
 
@@ -76,9 +81,9 @@ export const createComment = async (
 export const getPostComments = async (
   id: string,
   pageNum: number,
-  pageSize: number = 10
-): Promise<Comment[]> => {
-  const res = await api.get<Comment[]>(
+  pageSize: number = 2
+): Promise<PaginatedResponse<Comment>> => {
+  const res = await api.get<PaginatedResponse<Comment>>(
     `post/${id}/comment?pageNum=${pageNum}&pageSize=${pageSize}`
   );
 

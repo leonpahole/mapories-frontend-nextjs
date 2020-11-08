@@ -8,6 +8,10 @@ import { Formik } from "formik";
 import { AuthForm } from "../../pages/login";
 import { MyTextInput } from "../formik/MyTextInput";
 import { Button } from "shards-react";
+import {
+  PaginationInfo,
+  defaultPaginationInfo,
+} from "../profileTabs/userPostsList";
 
 export const updateCommentWithLikeOrUnlike = (
   c: Comment,
@@ -29,21 +33,34 @@ interface PostCommentsType {
 export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loadingComments, setLoadingComments] = useState<boolean>(true);
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>(
+    defaultPaginationInfo
+  );
 
-  useEffect(() => {
-    async function fetchPost() {
-      try {
-        const fComments = await getPostComments(postId, 0);
-        setComments(fComments);
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLoadingComments(false);
+  const fetchComments = async () => {
+    try {
+      setLoadingComments(true);
+      const fComments = await getPostComments(
+        postId,
+        paginationInfo.pageNumber
+      );
+      setComments([...comments, ...fComments.data]);
+      setPaginationInfo({
+        moreAvailable: fComments.moreAvailable,
+        pageNumber: paginationInfo.pageNumber + 1,
+      });
+    } catch (e) {
+      console.log(e);
+      alert("Error");
     }
 
-    fetchPost();
-  }, []);
+    setLoadingComments(false);
+  };
+
+  useEffect(() => {
+    setPaginationInfo(defaultPaginationInfo);
+    fetchComments();
+  }, [postId]);
 
   const modifyCommentWhenLikeOrUnlike = (comment: Comment, isLike: boolean) => {
     setComments((cList) => {
@@ -57,7 +74,7 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
     });
   };
 
-  if (loadingComments) {
+  if (comments.length === 0 && loadingComments) {
     return <Loading />;
   }
 
@@ -68,7 +85,6 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
   } else {
     commentList = (
       <>
-        <Button>Load more</Button>
         <div>
           {comments.map((c) => {
             return (
@@ -86,7 +102,6 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
 
   return (
     <div>
-      {commentList}
       <Formik
         validateOnBlur={false}
         validateOnChange={false}
@@ -99,7 +114,7 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
         onSubmit={async (values, { resetForm }) => {
           try {
             const comment = await createComment(postId, values.content!);
-            setComments((c) => [...c, comment]);
+            setComments((c) => [comment, ...c]);
             resetForm();
           } catch (e) {
             alert("Error!");
@@ -124,6 +139,11 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
           </AuthForm>
         )}
       </Formik>
+      {commentList}
+      {loadingComments && <Loading />}
+      {!loadingComments && paginationInfo.moreAvailable && (
+        <Button onClick={fetchComments}>Load more</Button>
+      )}
     </div>
   );
 };

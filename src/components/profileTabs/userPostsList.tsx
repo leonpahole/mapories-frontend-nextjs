@@ -5,31 +5,52 @@ import { Post } from "../../types/Post";
 import { Loading } from "../Loading";
 import { PostCard } from "../post/postCard";
 import { updatePostWithLikeOrUnlike } from "../../pages/PostView";
+import { Button } from "shards-react";
 
 interface UserPostsListProps {
   userId: string;
 }
 
+export interface PaginationInfo {
+  moreAvailable: boolean;
+  pageNumber: number;
+}
+
+export const defaultPaginationInfo = {
+  moreAvailable: false,
+  pageNumber: 0,
+};
+
 export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>(
+    defaultPaginationInfo
+  );
 
-  useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const fPosts = await getPostsForUser(userId);
-        setPosts(fPosts);
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLoadingPosts(false);
+  const fetchPosts = async () => {
+    try {
+      setLoadingPosts(true);
+      const fPosts = await getPostsForUser(userId, paginationInfo.pageNumber);
+      setPosts([...posts, ...fPosts.data]);
+      setPaginationInfo({
+        moreAvailable: fPosts.moreAvailable,
+        pageNumber: paginationInfo.pageNumber + 1,
+      });
+    } catch (e) {
+      console.log(e);
+      alert("Error");
     }
 
+    setLoadingPosts(false);
+  };
+
+  useEffect(() => {
+    setPaginationInfo(defaultPaginationInfo);
     fetchPosts();
   }, [userId]);
 
-  if (loadingPosts) {
+  if (posts.length === 0 && loadingPosts) {
     return <Loading />;
   }
 
@@ -79,6 +100,10 @@ export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
         </small>
       </Link>
       {postsList}
+      {loadingPosts && <Loading />}
+      {!loadingPosts && paginationInfo.moreAvailable && (
+        <Button onClick={fetchPosts}>Load more</Button>
+      )}
     </div>
   );
 };

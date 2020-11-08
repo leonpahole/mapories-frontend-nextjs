@@ -1,25 +1,27 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ReactMapGL, { Marker, FlyToInterpolator } from "react-map-gl";
 import { Loading } from "../Loading";
-import { getMaporiesForUser } from "../../api/post.api";
-import { MaporyExcerpt } from "../../types/mapory";
+import { getMapDataForUser } from "../../api/post.api";
 import { Modal, ModalBody, ModalHeader } from "shards-react";
 import { Link } from "react-router-dom";
-import { Post } from "../../types/Post";
+import { MaporyMapItem } from "../../types/MaporyMapItem";
 
 interface UserMapProps {
   userId: string;
 }
 
 export const UserMap: React.FC<UserMapProps> = ({ userId }) => {
-  const [mapories, setMapories] = useState<Post[]>([]);
+  const [mapories, setMapories] = useState<MaporyMapItem[]>([]);
   const [loadingMapories, setLoadingMapories] = useState<boolean>(true);
+  const [selectedMapory, setSelectedMapory] = useState<MaporyMapItem | null>(
+    null
+  );
 
   useEffect(() => {
-    async function fetchMapories() {
+    async function fetchMapDataForUser() {
       try {
-        const fMapories = await getMaporiesForUser(userId);
-        setMapories(fMapories.filter((m) => m.post.mapory != null));
+        const fMapories = await getMapDataForUser(userId);
+        setMapories(fMapories);
       } catch (e) {
         console.log(e);
       }
@@ -27,7 +29,7 @@ export const UserMap: React.FC<UserMapProps> = ({ userId }) => {
       setLoadingMapories(false);
     }
 
-    fetchMapories();
+    fetchMapDataForUser();
   }, [userId]);
 
   const [viewport, setViewport] = useState({
@@ -37,8 +39,6 @@ export const UserMap: React.FC<UserMapProps> = ({ userId }) => {
     transitionDuration: 1000,
     transitionInterpolator: new FlyToInterpolator(),
   });
-
-  const [selectedMapory, setSelectedMapory] = useState<Post | null>(null);
 
   const handleViewportChange = useCallback(
     (newViewport) => setViewport(newViewport),
@@ -64,8 +64,8 @@ export const UserMap: React.FC<UserMapProps> = ({ userId }) => {
       >
         {mapories.map((m) => (
           <Marker
-            latitude={m.post.mapory!.location.latitude}
-            longitude={m.post.mapory!.location.longitude}
+            latitude={m.location.latitude}
+            longitude={m.location.longitude}
           >
             <div onClick={() => setSelectedMapory(m)}>
               <svg
@@ -174,10 +174,10 @@ export const UserMap: React.FC<UserMapProps> = ({ userId }) => {
           open={selectedMapory != null}
           toggle={() => setSelectedMapory(null)}
         >
-          <ModalHeader>{selectedMapory.post.mapory!.placeName}</ModalHeader>
+          <ModalHeader>{selectedMapory.placeName}</ModalHeader>
           <ModalBody>
-            <p>{selectedMapory.post.mapory!.placeName}</p>
-            <Link to={`/mapory/${selectedMapory.post.id}`}>
+            <p>{selectedMapory.placeName}</p>
+            <Link to={`/mapory/${selectedMapory.id}`}>
               <small className="text-secondary c-pointer block mt-3 mb-3">
                 See details
               </small>
