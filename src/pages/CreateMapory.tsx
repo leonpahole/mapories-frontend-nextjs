@@ -6,7 +6,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "shards-react";
 import * as Yup from "yup";
-import { createMapory } from "../api/mapory.api";
+import { createMapory } from "../api/post.api";
 import { MyTextInput } from "../components/formik/MyTextInput";
 import { MyAlert } from "../components/MyAlert";
 import { AlertTheme } from "../types/app";
@@ -20,8 +20,7 @@ import Geocoder from "react-map-gl-geocoder";
 dayjs.extend(customParseFormat);
 
 interface CreateMaporyInputType {
-  name: string | null;
-  description: string | null;
+  content: string | null;
   rating: number | null;
   placeName: string | null;
   visitDate: string;
@@ -51,7 +50,7 @@ const CreateMapory: React.FC = () => {
     CreateMaporyAlertType
   >(CreateMaporyAlertTypeInfo);
 
-  const [createdMaporyId, setCreatedmaporyId] = useState<null | string>(null);
+  const [createdMaporyId, setCreatedMaporyId] = useState<null | string>(null);
 
   const [viewport, setViewport] = useState(originalViewPort);
 
@@ -87,7 +86,6 @@ const CreateMapory: React.FC = () => {
 
   const handleResult = useCallback(
     ({ result }: any) => {
-      console.log(result);
       if (result.center && result.center.length >= 2) {
         setLongitude(Number(result.center[0]));
         setLatitude(Number(result.center[1]));
@@ -111,7 +109,7 @@ const CreateMapory: React.FC = () => {
       alertContent = (
         <>
           <p>Mapory created!</p>
-          <Link to={`/mapory/${createdMaporyId}`} target="_blank">
+          <Link to={`/post/${createdMaporyId}`} target="_blank">
             View mapory
           </Link>
         </>
@@ -161,15 +159,13 @@ const CreateMapory: React.FC = () => {
         validateOnBlur={false}
         validateOnChange={false}
         initialValues={{
-          name: null,
-          description: null,
+          content: null,
           rating: null,
           placeName: null,
           visitDate: dayjs().format("DD. MM. YYYY"),
         }}
         validationSchema={Yup.object({
-          name: Yup.string().required("Please enter a name!"),
-          description: Yup.string().nullable(),
+          content: Yup.string().required("Please enter post content!"),
           rating: Yup.number()
             .nullable()
             .integer()
@@ -196,16 +192,15 @@ const CreateMapory: React.FC = () => {
 
           try {
             const visitDate = dayjs(values.visitDate, "DD. MM. YYYY").toDate();
-            const mapory = await createMapory(
-              values.name!,
-              values.description,
-              values.rating,
+            const { post: mapory } = await createMapory(
+              values.content!,
               latitude!,
               longitude!,
               placeName,
-              visitDate
+              visitDate,
+              values.rating
             );
-            setCreatedmaporyId(mapory.id);
+            setCreatedMaporyId(mapory.id);
             showAlert("CREATE_MAPORY_SUCCESS");
             resetForm();
             setViewport(originalViewPort);
@@ -230,18 +225,11 @@ const CreateMapory: React.FC = () => {
             </MyAlert>
 
             <MyTextInput
-              value={values.name || ""}
-              name="name"
-              label="Name"
-              placeholder="Enter mapory name"
+              value={values.content || ""}
+              name="content"
+              label="Content"
+              placeholder="Enter post content"
               className="mb-0"
-            />
-
-            <MyTextInput
-              value={values.description || ""}
-              name="description"
-              label="Description"
-              placeholder="Enter description"
             />
 
             <MyTextInput

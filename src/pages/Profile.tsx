@@ -5,7 +5,6 @@ import Avatar from "react-avatar";
 import { Nav, NavItem, NavLink, Button } from "shards-react";
 import { UserMap } from "../components/profileTabs/userMap";
 import { UserProfile } from "../components/profileTabs/userProfile";
-import { UserMaporiesList } from "../components/profileTabs/userMaporiesList";
 import { useParams } from "react-router";
 import { useSelector } from "react-redux";
 import { RootStore } from "../redux/store";
@@ -35,9 +34,6 @@ interface NavLinkInfo {
 const NavLinks: Record<string, NavLinkInfo> = {
   MAP: {
     name: "MAP",
-  },
-  MEMORIES: {
-    name: "MAPORIES",
   },
   POSTS: {
     name: "POSTS",
@@ -170,8 +166,6 @@ const Profile: React.FC = () => {
   let selectedTabContent = null;
   if (selectedTab === NavLinks.MAP.name) {
     selectedTabContent = <UserMap userId={userProfileData.id} />;
-  } else if (selectedTab === NavLinks.MEMORIES.name) {
-    selectedTabContent = <UserMaporiesList userId={userProfileData.id} />;
   } else if (selectedTab === NavLinks.POSTS.name) {
     selectedTabContent = <UserPostsList userId={userProfileData.id} />;
   } else if (selectedTab === NavLinks.PROFILE.name) {
@@ -235,15 +229,6 @@ const Profile: React.FC = () => {
             onClick={() => selectTab(NavLinks.MAP)}
           >
             {NavLinks.MAP.name}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            className="c-pointer"
-            active={selectedTab === NavLinks.MEMORIES.name}
-            onClick={() => selectTab(NavLinks.MEMORIES)}
-          >
-            {NavLinks.MEMORIES.name}
           </NavLink>
         </NavItem>
         <NavItem>

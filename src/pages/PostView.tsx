@@ -1,10 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Card, CardBody, CardTitle } from "shards-react";
 import { getPostById } from "../api/post.api";
 import { Loading } from "../components/Loading";
 import { Post } from "../types/Post";
+import { Comment } from "../types/Comment";
 import { PostCard } from "../components/post/postCard";
+import MapGL, { Marker, FlyToInterpolator } from "react-map-gl";
+
+export const updatePostWithLikeOrUnlike = (p: Post, isLike: boolean): Post => {
+  return {
+    ...p,
+    post: {
+      ...p.post,
+      likes: {
+        myLike: isLike,
+        likesAmount: p.post.likes.likesAmount + (isLike ? 1 : -1),
+      },
+    },
+  };
+};
 
 export const PostView: React.FC<{}> = ({}) => {
   const [post, setPost] = useState<Post | null>(null);
@@ -27,12 +42,25 @@ export const PostView: React.FC<{}> = ({}) => {
     fetchPost();
   }, [id]);
 
+  const [viewport, setViewport] = useState({
+    latitude: 45.66,
+    longitude: -33.9,
+    zoom: 1,
+    transitionDuration: 1000,
+    transitionInterpolator: new FlyToInterpolator(),
+  });
+
+  const changeViewPort = (latitude: number, longitude: number) => {
+    setViewport({ ...viewport, zoom: 6, latitude, longitude });
+  };
+
+  const handleViewportChange = useCallback(
+    (newViewport) => setViewport(newViewport),
+    []
+  );
+
   const modifyPostWhenLikeOrUnlike = (isLike: boolean) => {
-    setPost((p) => ({
-      ...p!,
-      myLike: isLike,
-      likesAmount: p!.likesAmount + (isLike ? 1 : -1),
-    }));
+    setPost((p) => updatePostWithLikeOrUnlike(p!, isLike));
   };
 
   if (loadingPost) {
@@ -45,8 +73,10 @@ export const PostView: React.FC<{}> = ({}) => {
 
   return (
     <PostCard
-      post={post}
+      postInfo={post}
+      showMap={true}
       showAuthor={true}
+      showComments={true}
       onLikeOrUnlike={modifyPostWhenLikeOrUnlike}
     />
   );

@@ -18,7 +18,6 @@ import CreateSocialAccount from "./pages/CreateSocialAccount";
 import Profile from "./pages/Profile";
 import { useIsLoggedIn } from "./utils/useAlreadyLoggedInGuard";
 import CreateMapory from "./pages/CreateMapory";
-import { MaporyView } from "./pages/MaporyView";
 import { SearchResults } from "./pages/SearchResults";
 import CreatePost from "./pages/CreatePost";
 import { PostView } from "./pages/PostView";
@@ -63,9 +62,6 @@ const App: React.FC = () => {
         </Route>
         <Route path="/create-mapory">
           <CreateMapory />
-        </Route>
-        <Route path="/mapory/:id">
-          <MaporyView />
         </Route>
         <Route path="/search">
           <SearchResults />

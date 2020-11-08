@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button, Card, CardBody, CardTitle } from "shards-react";
-import { likeMapory, unlikeMapory } from "../../api/mapory.api";
 import { getPostsForUser } from "../../api/post.api";
 import { Post } from "../../types/Post";
 import { Loading } from "../Loading";
 import { PostCard } from "../post/postCard";
+import { updatePostWithLikeOrUnlike } from "../../pages/PostView";
 
 interface UserPostsListProps {
   userId: string;
@@ -39,15 +38,11 @@ export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
   const updatePostsOnLikeOrUnlike = async (post: Post, isLike: boolean) => {
     setPosts((pList) => {
       return pList.map((p) => {
-        if (p.id !== post.id) {
+        if (p.post.id !== post.post.id) {
           return p;
         }
 
-        return {
-          ...p,
-          likesAmount: p.likesAmount + (isLike ? 1 : -1),
-          myLike: isLike,
-        };
+        return updatePostWithLikeOrUnlike(p, isLike);
       });
     });
   };
@@ -59,8 +54,9 @@ export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
       <div>
         {posts.map((p) => (
           <PostCard
-            post={p}
+            postInfo={p}
             showSeeDetails={true}
+            showMap={false}
             onLikeOrUnlike={(isLike: boolean) =>
               updatePostsOnLikeOrUnlike(p, isLike)
             }
@@ -75,6 +71,11 @@ export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
       <Link to="/create-post">
         <small className="text-secondary c-pointer block mt-3 mb-3">
           Create a post
+        </small>
+      </Link>
+      <Link to="/create-mapory">
+        <small className="text-secondary c-pointer block mt-3 mb-3">
+          Create a mapory
         </small>
       </Link>
       {postsList}

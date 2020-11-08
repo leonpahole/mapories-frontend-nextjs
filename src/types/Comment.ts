@@ -5,6 +5,8 @@ export type Comment = {
   content: string;
   postedAt: Date;
   author: UserExcerpt;
-  likesAmount: number;
-  myLike: boolean;
+  likes: {
+    likesAmount: number;
+    myLike: boolean;
+  };
 };

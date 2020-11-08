@@ -68,7 +68,7 @@ const CreatePost: React.FC = () => {
         })}
         onSubmit={async (values, { resetForm }) => {
           try {
-            const post = await createPost(values.content!);
+            const { post } = await createPost(values.content!);
             setCreatedPostId(post.id);
             showAlert("CREATE_POST_SUCCESS");
             resetForm();
