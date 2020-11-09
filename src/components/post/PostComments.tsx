@@ -8,10 +8,7 @@ import { Formik } from "formik";
 import { AuthForm } from "../../pages/login";
 import { MyTextInput } from "../formik/MyTextInput";
 import { Button } from "shards-react";
-import {
-  PaginationInfo,
-  defaultPaginationInfo,
-} from "../profileTabs/userPostsList";
+import { PaginationInfo, defaultPaginationInfo } from "./postsList";
 
 export const updateCommentWithLikeOrUnlike = (
   c: Comment,

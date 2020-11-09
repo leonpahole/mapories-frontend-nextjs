@@ -18,6 +18,17 @@ export const getPostsForUser = async (
   return res.data;
 };
 
+export const getMyFeed = async (
+  pageNumber: number,
+  pageSize: number = 10
+): Promise<PaginatedResponse<Post>> => {
+  const res = await api.get<PaginatedResponse<Post>>(
+    `post/feed?pageNum=${pageNumber}&pageSize=${pageSize}`
+  );
+
+  return res.data;
+};
+
 export const getMapDataForUser = async (
   userId: string | null = null
 ): Promise<MaporyMapItem[]> => {

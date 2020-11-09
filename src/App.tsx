@@ -21,6 +21,7 @@ import CreateOrUpdateMapory from "./pages/CreateOrUpdateMapory";
 import { SearchResults } from "./pages/SearchResults";
 import CreateOrUpdatePost from "./pages/CreateOrUpdatePost";
 import { PostView } from "./pages/PostView";
+import Feed from "./pages/Feed";
 
 const BodyContainer = styled.div`
   padding: 40px 20px;
@@ -71,6 +72,9 @@ const App: React.FC = () => {
         </Route>
         <Route path="/post/:id">
           <PostView />
+        </Route>
+        <Route path="/" exact>
+          <Feed />
         </Route>
       </>
     );
