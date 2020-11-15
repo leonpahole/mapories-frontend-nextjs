@@ -9,13 +9,16 @@ import SnackbarProvider from "react-simple-snackbar";
 import "./util.css";
 import "./shards.override.css";
 import "mapbox-gl/dist/mapbox-gl.css";
+import ChatSocketProvider from "./socket/ChatSocket";
 
 ReactDOM.render(
   <SnackbarProvider>
     <Provider store={store}>
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
+      <ChatSocketProvider>
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      </ChatSocketProvider>
     </Provider>
   </SnackbarProvider>,
   document.getElementById("root")
