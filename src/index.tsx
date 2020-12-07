@@ -5,21 +5,32 @@ import App from "./App";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import SnackbarProvider from "react-simple-snackbar";
+import { ThemeSwitcherProvider } from "react-css-theme-switcher";
 
 import "./util.css";
-import "./shards.override.css";
 import "mapbox-gl/dist/mapbox-gl.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+
 import ChatSocketProvider from "./socket/ChatSocket";
 
+require("typeface-raleway");
+
+const themes = {
+  light: `${process.env.PUBLIC_URL}/rsuite-default.min.css`,
+  dark: `${process.env.PUBLIC_URL}/rsuite-dark.min.css`,
+};
+
 ReactDOM.render(
-  <SnackbarProvider>
-    <Provider store={store}>
-      <ChatSocketProvider>
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      </ChatSocketProvider>
-    </Provider>
-  </SnackbarProvider>,
+  <ThemeSwitcherProvider defaultTheme="light" themeMap={themes}>
+    <SnackbarProvider>
+      <Provider store={store}>
+        <ChatSocketProvider>
+          <React.StrictMode>
+            <App />
+          </React.StrictMode>
+        </ChatSocketProvider>
+      </Provider>
+    </SnackbarProvider>
+  </ThemeSwitcherProvider>,
   document.getElementById("root")
 );

@@ -94,6 +94,10 @@ const NavBar: React.FC = () => {
     ];
   }
 
+  if (2 > 1) {
+    return null;
+  }
+
   let loggedInItems = null;
   if (isLoggedIn) {
     loggedInItems = (

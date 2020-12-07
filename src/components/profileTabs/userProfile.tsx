@@ -1,13 +1,14 @@
-import React from "react";
-import { UserProfileData } from "../../types/UserProfile";
 import { Formik } from "formik";
-import { AuthForm, AuthFormBottomContainer } from "../../pages/login";
-import { MyTextInput } from "../formik/MyTextInput";
-import * as Yup from "yup";
+import React from "react";
 import { Button } from "shards-react";
+import * as Yup from "yup";
 import { changePassword } from "../../api/auth.api";
-import { useSelector } from "react-redux";
-import { RootStore } from "../../redux/store";
+import {
+  CenteredForm,
+  CenteredFormBottomContainer,
+} from "../../styledComponents/StyledForm";
+import { UserProfileData } from "../../types/UserProfile";
+import { MyTextInput } from "../form/MyTextInput";
 
 interface UserProfileProps {
   userProfileData: UserProfileData;
@@ -60,7 +61,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             }}
           >
             {({ handleSubmit, isSubmitting }) => (
-              <AuthForm onSubmit={handleSubmit}>
+              <CenteredForm onSubmit={handleSubmit}>
                 <MyTextInput
                   name="password"
                   type="password"
@@ -75,12 +76,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   placeholder="Confirm your password"
                 />
 
-                <AuthFormBottomContainer className="mt-3">
+                <CenteredFormBottomContainer className="mt-3">
                   <Button disabled={isSubmitting} type="submit">
                     Change
                   </Button>
-                </AuthFormBottomContainer>
-              </AuthForm>
+                </CenteredFormBottomContainer>
+              </CenteredForm>
             )}
           </Formik>
         </>

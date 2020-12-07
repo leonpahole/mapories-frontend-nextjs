@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Link, useParams, useHistory } from "react-router-dom";
-import { Card, CardBody, CardTitle } from "shards-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { FlyToInterpolator } from "react-map-gl";
+import { useHistory, useParams } from "react-router-dom";
 import { getPostById } from "../api/post.api";
 import { Loading } from "../components/Loading";
+import { PostCard } from "../components/post/PostCard";
 import { Post } from "../types/Post";
-import { Comment } from "../types/Comment";
-import { PostCard } from "../components/post/postCard";
-import MapGL, { Marker, FlyToInterpolator } from "react-map-gl";
 
 export const updatePostWithLikeOrUnlike = (p: Post, isLike: boolean): Post => {
   return {

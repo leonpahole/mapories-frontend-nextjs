@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Loading } from "../Loading";
-import { PostsList } from "../post/postsList";
+import { PostsList } from "../post/PostsList";
 
 interface UserPostsListProps {
   userId: string;

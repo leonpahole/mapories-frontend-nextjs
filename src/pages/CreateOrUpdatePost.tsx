@@ -1,156 +1,158 @@
-import { Formik } from "formik";
-import "mapbox-gl/dist/mapbox-gl.css";
-import React, { useState, useEffect } from "react";
-import "react-map-gl-geocoder/dist/mapbox-gl-geocoder.css";
-import { Link, useParams } from "react-router-dom";
-import { Button } from "shards-react";
-import * as Yup from "yup";
-import { createPost, getPostById, updatePost } from "../api/post.api";
-import { MyTextInput } from "../components/formik/MyTextInput";
-import { MyAlert } from "../components/MyAlert";
-import { AlertTheme } from "../types/app";
-import { useAlert } from "../utils/useAlert";
-import { AuthForm, AuthFormContainer } from "./login";
-import { Post, PostExcerpt } from "../types/Post";
-import { Loading } from "../components/Loading";
+export default {};
 
-interface CreatePostInputType {
-  content: string | null;
-}
+// import { Formik } from "formik";
+// import "mapbox-gl/dist/mapbox-gl.css";
+// import React, { useEffect, useState } from "react";
+// import "react-map-gl-geocoder/dist/mapbox-gl-geocoder.css";
+// import { useParams } from "react-router-dom";
+// import { Button } from "shards-react";
+// import * as Yup from "yup";
+// import { createPost, getPostById, updatePost } from "../api/post.api";
+// import { MyTextInput } from "../components/form/MyTextInput";
+// import { Loading } from "../components/Loading";
+// import { MyAlert, MyAlertState } from "../components/MyAlert";
+// import {
+//   UnknownErrorMyAlertState,
+//   UNKNOWN_ERROR,
+//   useAlert,
+// } from "../hooks/useAlert";
+// import { Post } from "../types/Post";
+// import {
+//   CenteredFormContainer,
+//   CenteredForm,
+// } from "../styledComponents/StyledForm";
 
-type CreateOrUpdatePostAlertType =
-  | "UNKNOWN_ERROR"
-  | "CREATE_POST_SUCCESS"
-  | "UPDATE_POST_SUCCESS";
+// interface CreatePostInputType {
+//   content: string | null;
+// }
 
-const CreateOrUpdatePostAlertTypeInfo: Record<
-  CreateOrUpdatePostAlertType,
-  AlertTheme
-> = {
-  UNKNOWN_ERROR: "danger",
-  CREATE_POST_SUCCESS: "success",
-  UPDATE_POST_SUCCESS: "success",
-};
+// type CreateOrUpdatePostAlertAction =
+//   | { type: "CREATE_POST_SUCCESS"; createdPostId: string }
+//   | { type: "UPDATE_POST_SUCCESS"; updatedPostId: string }
+//   | { type: typeof UNKNOWN_ERROR };
 
-const CreateOrUpdatePost: React.FC = () => {
-  let { id } = useParams();
+// function createOrUpdatePostAlertReducer(
+//   state: MyAlertState,
+//   action: CreateOrUpdatePostAlertAction
+// ): MyAlertState {
+//   switch (action.type) {
+//     case "CREATE_POST_SUCCESS":
+//       return {
+//         type: "success",
+//         title: "Post created!",
+//         link: {
+//           to: `/post/${action.createdPostId}`,
+//           text: "View post",
+//         },
+//       };
+//     case "UPDATE_POST_SUCCESS":
+//       return {
+//         type: "success",
+//         title: "Post updated!",
+//         link: {
+//           to: `/post/${action.updatedPostId}`,
+//           text: "View post",
+//         },
+//       };
+//     case UNKNOWN_ERROR:
+//     default:
+//       return UnknownErrorMyAlertState;
+//   }
+// }
 
-  const { alertOpen, alertTheme, showAlert, closeAlert, alertType } = useAlert<
-    CreateOrUpdatePostAlertType
-  >(CreateOrUpdatePostAlertTypeInfo);
+// const CreateOrUpdatePost: React.FC = () => {
+//   let { id } = useParams();
 
-  const [createdPostId, setCreatedPostId] = useState<null | string>(null);
-  const [postToUpdate, setPostToUpdate] = useState<Post | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+//   const {
+//     alertOpen,
+//     alertState,
+//     openAlert,
+//     onAlertClose,
+//   } = useAlert<CreateOrUpdatePostAlertAction>(createOrUpdatePostAlertReducer);
 
-  useEffect(() => {
-    async function fetchPostToUpdate() {
-      if (id) {
-        const post = await getPostById(id);
-        setPostToUpdate(post);
-      }
+//   const [postToUpdate, setPostToUpdate] = useState<Post | null>(null);
+//   const [loading, setLoading] = useState<boolean>(true);
 
-      setLoading(false);
-    }
+//   useEffect(() => {
+//     async function fetchPostToUpdate() {
+//       if (id) {
+//         const post = await getPostById(id);
+//         setPostToUpdate(post);
+//       }
 
-    fetchPostToUpdate();
-  }, [id]);
+//       setLoading(false);
+//     }
 
-  if (loading) {
-    return <Loading />;
-  }
+//     fetchPostToUpdate();
+//   }, [id]);
 
-  let alertContent: any = null;
+//   if (loading) {
+//     return <Loading />;
+//   }
 
-  if (alertType != null) {
-    if (alertType === "CREATE_POST_SUCCESS" && createdPostId != null) {
-      alertContent = (
-        <>
-          <p>Post created!</p>
-          <Link to={`/post/${createdPostId}`} target="_blank">
-            View post
-          </Link>
-        </>
-      );
-    } else if (alertType === "UPDATE_POST_SUCCESS" && postToUpdate != null) {
-      alertContent = (
-        <>
-          <p>Post updated!</p>
-          <Link to={`/post/${postToUpdate.post.id}`} target="_blank">
-            View post
-          </Link>
-        </>
-      );
-    } else if (alertType === "UNKNOWN_ERROR") {
-      alertContent = (
-        <>
-          <p>Unknown error has occured.</p>
-          <p>Please try again later.</p>
-        </>
-      );
-    }
-  }
+//   return (
+//     <CenteredFormContainer>
+//       <h1>{postToUpdate ? "Update" : "Create"} a post</h1>
+//       <p>{postToUpdate ? "Update" : "Create"} your post.</p>
 
-  return (
-    <AuthFormContainer>
-      <h1>{postToUpdate ? "Update" : "Create"} a post</h1>
-      <p>{postToUpdate ? "Update" : "Create"} your post.</p>
+//       <Formik<CreatePostInputType>
+//         validateOnBlur={false}
+//         validateOnChange={false}
+//         initialValues={{
+//           content: postToUpdate ? postToUpdate.post.content : null,
+//         }}
+//         validationSchema={Yup.object({
+//           content: Yup.string().required("Please enter content!"),
+//         })}
+//         onSubmit={async (values, { resetForm }) => {
+//           try {
+//             if (postToUpdate) {
+//               await updatePost(postToUpdate.post.id, values.content!);
+//               openAlert({
+//                 type: "UPDATE_POST_SUCCESS",
+//                 updatedPostId: postToUpdate.post.id,
+//               });
+//             } else {
+//               const { post } = await createPost(values.content!);
+//               openAlert({
+//                 type: "CREATE_POST_SUCCESS",
+//                 createdPostId: post.id,
+//               });
+//               resetForm();
+//             }
+//           } catch (e) {
+//             console.log(e);
+//             openAlert({ type: UNKNOWN_ERROR });
+//           }
+//         }}
+//       >
+//         {({ handleSubmit, isSubmitting, values }) => (
+//           <CenteredForm onSubmit={handleSubmit}>
+//             <MyAlert
+//               open={alertOpen}
+//               state={alertState}
+//               onClose={onAlertClose}
+//               className="mb-4"
+//             />
 
-      <Formik<CreatePostInputType>
-        validateOnBlur={false}
-        validateOnChange={false}
-        initialValues={{
-          content: postToUpdate ? postToUpdate.post.content : null,
-        }}
-        validationSchema={Yup.object({
-          content: Yup.string().required("Please enter content!"),
-        })}
-        onSubmit={async (values, { resetForm }) => {
-          try {
-            if (postToUpdate) {
-              await updatePost(postToUpdate.post.id, values.content!);
-              showAlert("UPDATE_POST_SUCCESS");
-            } else {
-              const { post } = await createPost(values.content!);
-              showAlert("CREATE_POST_SUCCESS");
-              setCreatedPostId(post.id);
-              resetForm();
-            }
-          } catch (e) {
-            console.log(e);
-            showAlert("UNKNOWN_ERROR");
-          }
-        }}
-      >
-        {({ handleSubmit, isSubmitting, values }) => (
-          <AuthForm onSubmit={handleSubmit}>
-            <MyAlert
-              dismissible={closeAlert}
-              open={alertOpen}
-              theme={alertTheme}
-              className="mb-4"
-            >
-              {alertContent}
-            </MyAlert>
+//             <MyTextInput
+//               value={values.content || ""}
+//               name="content"
+//               label="Content"
+//               placeholder="Enter post content"
+//               className="mb-0"
+//             />
 
-            <MyTextInput
-              value={values.content || ""}
-              name="content"
-              label="Content"
-              placeholder="Enter post content"
-              className="mb-0"
-            />
+//             <div className="d-flex mt-3">
+//               <Button disabled={isSubmitting} type="submit">
+//                 {postToUpdate ? "Update post!" : "Create post!"}
+//               </Button>
+//             </div>
+//           </CenteredForm>
+//         )}
+//       </Formik>
+//     </CenteredFormContainer>
+//   );
+// };
 
-            <div className="d-flex mt-3">
-              <Button disabled={isSubmitting} type="submit">
-                {postToUpdate ? "Update post!" : "Create post!"}
-              </Button>
-            </div>
-          </AuthForm>
-        )}
-      </Formik>
-    </AuthFormContainer>
-  );
-};
-
-export default CreateOrUpdatePost;
+// export default CreateOrUpdatePost;

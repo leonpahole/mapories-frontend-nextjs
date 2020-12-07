@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getPostsForUser, getMyFeed } from "../../api/post.api";
+import { Button } from "shards-react";
+import { getMyFeed, getPostsForUser } from "../../api/post.api";
+import { updatePostWithLikeOrUnlike } from "../../pages/PostView";
 import { Post } from "../../types/Post";
 import { Loading } from "../Loading";
-import { PostCard } from "./postCard";
-import { updatePostWithLikeOrUnlike } from "../../pages/PostView";
-import { Button } from "shards-react";
+import { PostCard } from "./PostCard";
 
 interface PostsListProps {
   userId?: string;

@@ -7,7 +7,7 @@ import { RootStore } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
 import { RoomStateI } from "../../redux/chat/chat.reducer";
 import { ChatSocketContext } from "../../socket/ChatSocket";
-import { PaginationInfo, defaultPaginationInfo } from "../post/postsList";
+import { PaginationInfo, defaultPaginationInfo } from "../post/PostsList";
 import { fetchChatLog } from "../../redux/chat/chat.actions";
 
 const WINDOW_WIDTH = 15;

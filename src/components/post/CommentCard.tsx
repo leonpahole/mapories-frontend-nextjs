@@ -12,9 +12,12 @@ import { Comment } from "../../types/Comment";
 import { useSelector } from "react-redux";
 import { RootStore } from "../../redux/store";
 import { Formik } from "formik";
-import { AuthForm } from "../../pages/login";
-import { MyTextInput } from "../formik/MyTextInput";
+import { MyTextInput } from "../form/MyTextInput";
 import * as Yup from "yup";
+import { CenteredForm } from "../../styledComponents/StyledForm";
+import { Panel, Nav, Icon } from "rsuite";
+import { AuthorHeader } from "./AuthorHeader";
+import { NewPostCommentInput } from "./NewPostCommentInput";
 
 interface CommentCardProps {
   postId: string;
@@ -60,92 +63,52 @@ export const CommentCard: React.FC<CommentCardProps> = ({
     }
   };
 
-  const onEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const onCancelEditClick = () => {
-    setIsEditing(false);
-  };
-
   const isMine = loggedInUser!.id === comment.author.id;
 
-  let commentContent = <CardTitle>{comment.content}</CardTitle>;
-  if (isEditing) {
-    commentContent = (
-      <Formik
-        validateOnBlur={false}
-        validateOnChange={false}
-        initialValues={{
-          content: comment.content,
-        }}
-        validationSchema={Yup.object({
-          content: Yup.string().required("Please enter content!"),
-        })}
-        onSubmit={async (values) => {
-          try {
-            await updateComment(postId, comment.id, values.content);
-            onEdited(values.content);
-            setIsEditing(false);
-          } catch (e) {
-            alert("Error!");
-            console.log(e);
-          }
-        }}
-      >
-        {({ handleSubmit, isSubmitting }) => (
-          <AuthForm onSubmit={handleSubmit}>
-            <MyTextInput
-              name="content"
-              label="Content"
-              placeholder="Enter post content"
-              className="mb-0"
-            />
-
-            <div className="d-flex mt-3">
-              <Button disabled={isSubmitting} type="submit">
-                Update!
-              </Button>
-            </div>
-          </AuthForm>
-        )}
-      </Formik>
-    );
-  }
-
   return (
-    <>
-      <div>
+    <div>
+      <Panel
+        header={
+          <AuthorHeader
+            linkTo={`#`}
+            createdAt={comment.postedAt}
+            author={comment.author}
+            isMine={isMine}
+            onDelete={() => onDeleteClick()}
+            onEdit={() => setIsEditing((e) => !e)}
+          />
+        }
+      >
         <div>
-          <p>Posted by {comment.author.name}</p>
-          <Link to={`/profile/${comment.author.id}`}>
-            <small className="text-secondary c-pointer block mt-3 mb-3">
-              See profile
-            </small>
-          </Link>
+          {isEditing ? (
+            <NewPostCommentInput
+              postId={postId}
+              onCommentUpdate={(content) => {
+                onEdited(content);
+                setIsEditing(false);
+              }}
+              existingComment={comment}
+            />
+          ) : (
+            <p>{comment.content}</p>
+          )}
         </div>
-        <Card className="mb-3">
-          <CardBody>
-            {commentContent}
-            <p>Likes: {comment.likes.likesAmount}</p>
-            <div className="d-flex">
-              <Button onClick={likeOrUnlike}>
-                {comment.likes.myLike ? "Unlike" : "Like"}
-              </Button>
-              {isMine && (
-                <>
-                  {isEditing ? (
-                    <Button onClick={onCancelEditClick}>Cancel edit</Button>
-                  ) : (
-                    <Button onClick={onEditClick}>Edit</Button>
-                  )}
-                  <Button onClick={onDeleteClick}>Delete</Button>
-                </>
-              )}
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    </>
+        <Nav className="mt-3">
+          <Nav.Item
+            onClick={likeOrUnlike}
+            icon={
+              <Icon
+                icon={comment.likes.myLike ? "heart" : "heart-o"}
+                size="lg"
+                style={{ color: comment.likes.myLike ? "red" : undefined }}
+              />
+            }
+            className="no-padding-navitem mr-2"
+          >
+            {comment.likes.likesAmount > 0 ? comment.likes.likesAmount : ""}
+          </Nav.Item>
+        </Nav>
+      </Panel>
+    </div>
   );
 };

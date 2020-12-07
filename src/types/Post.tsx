@@ -1,4 +1,5 @@
 import { UserExcerpt } from "./UserExcerpt";
+import { MapLocation } from "./MaporyMapItem";
 
 export type PostExcerpt = {
   id: string;
@@ -7,18 +8,21 @@ export type PostExcerpt = {
 
   mapory?: {
     placeName: string;
-    location: {
-      latitude: number;
-      longitude: number;
-    };
+    location: MapLocation;
     visitDate: Date;
     rating?: number;
   };
+
+  images: PostImage[];
 
   likes: {
     likesAmount: number;
     myLike: boolean;
   };
+};
+
+export type PostImage = {
+  url: string;
 };
 
 export type Post = {

@@ -1,34 +1,37 @@
 import NavBar from "./components/NavBar";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "shards-ui/dist/css/shards.min.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import styled from "styled-components";
-import Login from "./pages/login";
-import Register from "./pages/register";
+import Login from "./pages/authentication/Login";
+import Register from "./pages/authentication/Register";
 import React, { useState, useEffect } from "react";
 import { Loading } from "./components/Loading";
 import { useDispatch } from "react-redux";
 import { loginAction } from "./redux/auth/auth.actions";
 import { profile } from "./api/user.api";
-import VerifyEmail from "./pages/verifyEmail";
-import ResendVerifyAccountEmail from "./pages/resendVerifyAccountEmail";
-import ForgotPassword from "./pages/forgotPassword";
-import ResetPassword from "./pages/resetPassword";
-import CreateSocialAccount from "./pages/CreateSocialAccount";
+import VerifyEmail from "./pages/authentication/VerifyEmail";
+import ResendVerifyAccountEmail from "./pages/authentication/ResendVerifyAccountEmail";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
+import ResetPassword from "./pages/authentication/ResetPassword";
+import CreateSocialAccount from "./pages/authentication/CreateSocialAccount";
 import Profile from "./pages/Profile";
 import { useIsLoggedIn } from "./utils/useAlreadyLoggedInGuard";
-import CreateOrUpdateMapory from "./pages/CreateOrUpdateMapory";
+// import CreateOrUpdateMapory from "./pages/CreateOrUpdateMapory";
 import { SearchResults } from "./pages/SearchResults";
-import CreateOrUpdatePost from "./pages/CreateOrUpdatePost";
+// import CreateOrUpdatePost from "./pages/CreateOrUpdatePost";
 import { PostView } from "./pages/PostView";
 import Feed from "./pages/Feed";
 import ChatSideBar from "./components/chat/ChatSideBar";
+import TopNavBar from "./components/navigation/TopNavBar";
+import { useThemeSwitcher } from "react-css-theme-switcher";
+import Home from "./pages/Home";
 
 const BodyContainer = styled.div`
   padding: 40px 20px;
 `;
 
 const App: React.FC = () => {
+  const { status: themeSwitcherStatus } = useThemeSwitcher();
+
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(true);
   const [isLoggedIn] = useIsLoggedIn();
@@ -51,7 +54,7 @@ const App: React.FC = () => {
     // eslint-disable-next-line
   }, []);
 
-  if (loading) {
+  if (loading || themeSwitcherStatus === "loading") {
     return <Loading />;
   }
 
@@ -62,15 +65,15 @@ const App: React.FC = () => {
         <Route path="/profile/:id?">
           <Profile />
         </Route>
-        <Route path="/create-or-update-mapory/:id?">
+        {/* <Route path="/create-or-update-mapory/:id?">
           <CreateOrUpdateMapory />
-        </Route>
+        </Route> */}
         <Route path="/search">
           <SearchResults />
         </Route>
-        <Route path="/create-or-update-post/:id?">
+        {/* <Route path="/create-or-update-post/:id?">
           <CreateOrUpdatePost />
-        </Route>
+        </Route> */}
         <Route path="/post/:id">
           <PostView />
         </Route>
@@ -103,6 +106,9 @@ const App: React.FC = () => {
         <Route path="/create-social-account">
           <CreateSocialAccount />
         </Route>
+        <Route path="/" exact>
+          <Home />
+        </Route>
       </>
     );
   }
@@ -110,15 +116,11 @@ const App: React.FC = () => {
   return (
     <>
       <Router>
+        <TopNavBar />
         <NavBar />
-        {isLoggedIn && <ChatSideBar />}
+        {/* isLoggedIn && <ChatSideBar /> */}
         <BodyContainer>
-          <Switch>
-            {routes}
-            <Route path="/">
-              <div>Home</div>
-            </Route>
-          </Switch>
+          <Switch>{routes}</Switch>
         </BodyContainer>
       </Router>
     </>

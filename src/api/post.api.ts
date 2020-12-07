@@ -36,30 +36,22 @@ export const getMapDataForUser = async (
   return res.data;
 };
 
-export const createPost = async (content: string): Promise<Post> => {
-  const res = await api.post<Post>(`post`, {
-    content,
-  });
-  return res.data;
-};
+export interface CreateOrUpdatePostData {
+  content: string;
+  mapory?: {
+    latitude: number;
+    longitude: number;
+    placeName: string;
+    visitDate: Date;
+    rating: number | null;
+  };
+}
 
-export const createMapory = async (
-  content: string,
-  latitude: number,
-  longitude: number,
-  placeName: string,
-  visitDate: Date,
-  rating: number | null
+export const createPost = async (
+  post: CreateOrUpdatePostData
 ): Promise<Post> => {
   const res = await api.post<Post>(`post`, {
-    content,
-    mapory: {
-      rating,
-      latitude,
-      longitude,
-      placeName,
-      visitDate,
-    },
+    post,
   });
 
   return res.data;
@@ -67,32 +59,13 @@ export const createMapory = async (
 
 export const updatePost = async (
   postId: string,
-  content: string
-): Promise<void> => {
-  await api.patch<void>(`post/${postId}`, {
-    content,
+  post: CreateOrUpdatePostData
+): Promise<Post> => {
+  const res = await api.patch<Post>(`post/${postId}`, {
+    post,
   });
-};
 
-export const updateMapory = async (
-  postId: string,
-  content: string,
-  latitude: number,
-  longitude: number,
-  placeName: string,
-  visitDate: Date,
-  rating: number | null
-): Promise<void> => {
-  await api.patch<void>(`post/${postId}`, {
-    content,
-    mapory: {
-      rating,
-      latitude,
-      longitude,
-      placeName,
-      visitDate,
-    },
-  });
+  return res.data;
 };
 
 export const deletePost = async (id: string): Promise<void> => {

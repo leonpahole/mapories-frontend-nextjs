@@ -1,10 +1,12 @@
 export type MaporyMapItem = {
   id: string;
   placeName: string;
-  location: {
-    latitude: number;
-    longitude: number;
-  };
+  location: MapLocation;
   visitDate: Date;
   rating?: number;
+};
+
+export type MapLocation = {
+  latitude: number;
+  longitude: number;
 };

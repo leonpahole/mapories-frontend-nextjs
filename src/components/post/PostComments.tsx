@@ -5,10 +5,11 @@ import { Loading } from "../Loading";
 import { CommentCard } from "./CommentCard";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { AuthForm } from "../../pages/login";
-import { MyTextInput } from "../formik/MyTextInput";
+import { MyTextInput } from "../form/MyTextInput";
 import { Button } from "shards-react";
-import { PaginationInfo, defaultPaginationInfo } from "./postsList";
+import { PaginationInfo, defaultPaginationInfo } from "./PostsList";
+import { CenteredForm } from "../../styledComponents/StyledForm";
+import { NewPostCommentInput } from "./NewPostCommentInput";
 
 export const updateCommentWithLikeOrUnlike = (
   c: Comment,
@@ -41,14 +42,13 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
         postId,
         paginationInfo.pageNumber
       );
-      setComments([...comments, ...fComments.data]);
+      setComments([...fComments.data.reverse(), ...comments]);
       setPaginationInfo({
         moreAvailable: fComments.moreAvailable,
         pageNumber: paginationInfo.pageNumber + 1,
       });
     } catch (e) {
       console.log(e);
-      alert("Error");
     }
 
     setLoadingComments(false);
@@ -99,7 +99,7 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
   let commentList = null;
 
   if (comments.length === 0) {
-    commentList = <p>No comments yet</p>;
+    commentList = <p>No comments yet.</p>;
   } else {
     commentList = (
       <>
@@ -124,48 +124,17 @@ export const PostComments: React.FC<PostCommentsType> = ({ postId }) => {
 
   return (
     <div>
-      <Formik
-        validateOnBlur={false}
-        validateOnChange={false}
-        initialValues={{
-          content: "",
-        }}
-        validationSchema={Yup.object({
-          content: Yup.string().required("Please enter content!"),
-        })}
-        onSubmit={async (values, { resetForm }) => {
-          try {
-            const comment = await createComment(postId, values.content!);
-            setComments((c) => [comment, ...c]);
-            resetForm();
-          } catch (e) {
-            alert("Error!");
-            console.log(e);
-          }
-        }}
-      >
-        {({ handleSubmit, isSubmitting, values }) => (
-          <AuthForm onSubmit={handleSubmit}>
-            <MyTextInput
-              name="content"
-              label="Content"
-              placeholder="Enter post content"
-              className="mb-0"
-            />
-
-            <div className="d-flex mt-3">
-              <Button disabled={isSubmitting} type="submit">
-                Comment!
-              </Button>
-            </div>
-          </AuthForm>
-        )}
-      </Formik>
-      {commentList}
-      {loadingComments && <Loading />}
       {!loadingComments && paginationInfo.moreAvailable && (
         <Button onClick={fetchComments}>Load more</Button>
       )}
+      {loadingComments && <Loading />}
+      {commentList}
+      <NewPostCommentInput
+        postId={postId}
+        onCommentCreate={(comment) => {
+          setComments((c) => [...c, comment]);
+        }}
+      />
     </div>
   );
 };
