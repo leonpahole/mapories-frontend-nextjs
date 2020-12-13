@@ -7,7 +7,7 @@ import { useHistory } from "react-router-dom";
 import { Button } from "shards-react";
 import styled from "styled-components";
 import * as Yup from "yup";
-import { registerSocial } from "../../api/auth.api";
+import { AuthenticationData, registerSocial } from "../../api/auth.api";
 import { uploadProfilePicture } from "../../api/user.api";
 import { MyTextInput } from "../../components/form/MyTextInput";
 import { MyAlert, MyAlertState } from "../../components/MyAlert";
@@ -24,7 +24,6 @@ import {
   CenteredFormContainer,
   CenteredFormWrapper,
 } from "../../styledComponents/StyledForm";
-import { UserExcerpt } from "../../types/UserExcerpt";
 
 const ProfileImageContainer = styled.div`
   position: relative;
@@ -99,8 +98,8 @@ const CreateSocialAccount: React.FC = () => {
     }
   }, []);
 
-  const onLogin = (user: UserExcerpt) => {
-    dispatch(loginAction(user));
+  const onLogin = (data: AuthenticationData) => {
+    dispatch(loginAction(data));
     history.push("/");
   };
 
@@ -196,7 +195,7 @@ const CreateSocialAccount: React.FC = () => {
                     .profilePictureUrl;
                 }
 
-                const user = await registerSocial(
+                const data = await registerSocial(
                   values.name,
                   createSocialAccountData!.provider,
                   createSocialAccountData!.accessToken,
@@ -213,7 +212,7 @@ const CreateSocialAccount: React.FC = () => {
                   }
                 }
 
-                onLogin(user);
+                onLogin(data);
                 resetForm();
               } catch (e) {
                 openAlert({ type: UNKNOWN_ERROR });

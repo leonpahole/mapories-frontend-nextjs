@@ -3,6 +3,7 @@ import { Post } from "../types/Post";
 import { Comment } from "../types/Comment";
 import { PaginatedResponse } from "../types/PaginatedResponse";
 import { MaporyMapItem } from "../types/MaporyMapItem";
+import { FileType } from "rsuite/lib/Uploader";
 
 export const getPostsForUser = async (
   userId: string | null = null,
@@ -50,9 +51,32 @@ export interface CreateOrUpdatePostData {
 export const createPost = async (
   post: CreateOrUpdatePostData
 ): Promise<Post> => {
-  const res = await api.post<Post>(`post`, {
-    post,
-  });
+  const res = await api.post<Post>(`post`, post);
+
+  return res.data;
+};
+
+export const updatePicturesForPost = async (
+  postId: string,
+  pictures: FileType[],
+  deletedPictures: string[] = []
+): Promise<string[]> => {
+  const formData = new FormData();
+  for (let p of pictures) {
+    formData.append(`pictures`, p.blobFile as Blob);
+  }
+
+  formData.append(`deletedPictures`, JSON.stringify(deletedPictures));
+
+  const res = await api.patch<string[]>(
+    `post/update-pictures/${postId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
 
   return res.data;
 };
@@ -61,10 +85,7 @@ export const updatePost = async (
   postId: string,
   post: CreateOrUpdatePostData
 ): Promise<Post> => {
-  const res = await api.patch<Post>(`post/${postId}`, {
-    post,
-  });
-
+  const res = await api.patch<Post>(`post/${postId}`, post);
   return res.data;
 };
 

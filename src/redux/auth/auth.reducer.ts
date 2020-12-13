@@ -3,14 +3,14 @@ import {
   LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
 } from "./auth.actionTypes";
-import { UserExcerpt } from "../../types/UserExcerpt";
+import { AuthenticationData } from "../../api/auth.api";
 
 interface AuthStateI {
-  loggedInUser?: UserExcerpt;
+  authData?: AuthenticationData;
 }
 
 const defaultState: AuthStateI = {
-  loggedInUser: undefined,
+  authData: undefined,
 };
 
 const authReducer = (
@@ -20,11 +20,11 @@ const authReducer = (
   switch (action.type) {
     case LOGIN_SUCCESS:
       return {
-        loggedInUser: action.payload,
+        authData: action.payload,
       };
     case LOGOUT_SUCCESS:
       return {
-        loggedInUser: undefined,
+        authData: undefined,
       };
     default:
       return state;

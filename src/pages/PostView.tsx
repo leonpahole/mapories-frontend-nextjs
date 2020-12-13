@@ -82,6 +82,7 @@ export const PostView: React.FC<{}> = ({}) => {
       showComments={true}
       onLikeOrUnlike={modifyPostWhenLikeOrUnlike}
       onDelete={onPostDeleted}
+      onUpdate={() => {}}
     />
   );
 };

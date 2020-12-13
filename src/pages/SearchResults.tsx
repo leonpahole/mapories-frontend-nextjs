@@ -7,6 +7,7 @@ import { useLocation, Link } from "react-router-dom";
 import { Card, CardBody, CardTitle } from "shards-react";
 import { useSelector } from "react-redux";
 import { RootStore } from "../redux/store";
+import { useLoggedInUser } from "../hooks/useLoggedInUser";
 
 export const SearchResults: React.FC<{}> = ({}) => {
   const location = useLocation();
@@ -14,9 +15,7 @@ export const SearchResults: React.FC<{}> = ({}) => {
   const [loadingSearch, setLoadingSearch] = useState<boolean>(true);
   const [searchResults, setSearchResults] = useState<UserProfileData[]>([]);
 
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
+  const loggedInUser = useLoggedInUser();
 
   useEffect(() => {
     async function search() {

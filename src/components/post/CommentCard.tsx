@@ -18,6 +18,7 @@ import { CenteredForm } from "../../styledComponents/StyledForm";
 import { Panel, Nav, Icon } from "rsuite";
 import { AuthorHeader } from "./AuthorHeader";
 import { NewPostCommentInput } from "./NewPostCommentInput";
+import { useLoggedInUser } from "../../hooks/useLoggedInUser";
 
 interface CommentCardProps {
   postId: string;
@@ -34,9 +35,7 @@ export const CommentCard: React.FC<CommentCardProps> = ({
   onEdited,
   onDeleted,
 }) => {
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
+  const loggedInUser = useLoggedInUser();
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
 

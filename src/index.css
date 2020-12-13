@@ -95,3 +95,7 @@ button:focus {
 .no-padding-navitem > a {
   padding: unset !important;
 }
+
+.multiline-text {
+  white-space: pre-line;
+}

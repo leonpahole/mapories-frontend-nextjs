@@ -11,6 +11,9 @@ import { RootStore } from "../../redux/store";
 import { Post } from "../../types/Post";
 import { AuthorHeader } from "./AuthorHeader";
 import { PostComments } from "./PostComments";
+import { useLoggedInUser } from "../../hooks/useLoggedInUser";
+import { CreateNewPostOrMaporyInput } from "./CreateNewPostOrMaporyInput";
+import { CreateNewPostOrMaporyModal } from "./CreateNewPostOrMaporyModal";
 
 const CarouselContainer = styled.div`
   width: 100%;
@@ -35,6 +38,7 @@ interface PostCardProps {
   onLikeOrUnlike(isLike: boolean): void;
   showMap?: boolean;
   showComments?: boolean;
+  onUpdate(p: Post): void;
   onDelete(): void;
 }
 
@@ -43,6 +47,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   showAuthor = false,
   showSeeDetails = false,
   onLikeOrUnlike,
+  onUpdate,
   onDelete,
   showMap = false,
   showComments = false,
@@ -50,10 +55,9 @@ export const PostCard: React.FC<PostCardProps> = ({
   const { post, author } = postInfo;
 
   const [displayComments, setDisplayComments] = useState<boolean>(false);
+  const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
 
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
+  const loggedInUser = useLoggedInUser();
 
   const likeOrUnlike = async () => {
     try {
@@ -72,82 +76,105 @@ export const PostCard: React.FC<PostCardProps> = ({
   const isMapory = post.mapory != null;
   const isMine = loggedInUser!.id === author.id;
 
+  const onUpdatePost = (p: Post) => {
+    setShowUpdateModal(false);
+    onUpdate(p);
+  };
+
+  const updatePostModal = (
+    <CreateNewPostOrMaporyModal
+      show={showUpdateModal}
+      size={"lg"}
+      postToUpdate={post}
+      onUpdate={onUpdatePost}
+      onHide={() => {
+        setShowUpdateModal(false);
+      }}
+    />
+  );
+
   return (
-    <div className="mb-4">
-      <Panel
-        header={
-          <AuthorHeader
-            linkTo={`/post/${post.id}`}
-            post={post}
-            createdAt={post.createdAt}
-            author={author}
-            isMine={isMine}
-            onEdit={() => {
-              console.log();
-            }}
-            onDelete={() => {
-              console.log();
-            }}
-          />
-        }
-        shaded
-      >
-        <div className="d-flex justify-content-between">
-          <div className="flex-grow-1">
-            {post.mapory && post.mapory.rating && (
-              <Rate defaultValue={post.mapory.rating} readOnly size="xs" />
-            )}
-            <p>{post.content}</p>
+    <>
+      <div className="mb-4">
+        <Panel
+          header={
+            <AuthorHeader
+              linkTo={`/post/${post.id}`}
+              post={post}
+              createdAt={post.createdAt}
+              author={author}
+              isMine={isMine}
+              onEdit={() => {
+                setShowUpdateModal(true);
+              }}
+              onDelete={() => {
+                console.log();
+              }}
+            />
+          }
+          shaded
+        >
+          <div className="d-flex justify-content-between">
+            <div className="flex-grow-1">
+              {post.mapory && post.mapory.rating && (
+                <Rate value={post.mapory.rating} readOnly size="xs" />
+              )}
+              <p className="multiline-text">{post.content}</p>
+            </div>
+            <div className="d-flex justify-content-end" style={{ flex: "2" }}>
+              {post.images && post.images.length > 0 && (
+                <CarouselContainer>
+                  <Carousel
+                    placement="right"
+                    shape="dot"
+                    className="custom-slider"
+                    style={{ height: "300px" }}
+                  >
+                    {post.images.map((p) => (
+                      <CarouselImage
+                        src={`${process.env.REACT_APP_API_URL}/${p.url}`}
+                        height="300"
+                      />
+                    ))}
+                  </Carousel>
+                </CarouselContainer>
+              )}
+              {isMapory && (
+                <MapContainer className="ml-3">
+                  <Map markers={[post.mapory!.location]} height="300px" />
+                </MapContainer>
+              )}
+            </div>
           </div>
-          <div className="d-flex justify-content-end" style={{ flex: "2" }}>
-            {post.images && post.images.length > 0 && (
-              <CarouselContainer>
-                <Carousel
-                  placement="right"
-                  shape="dot"
-                  className="custom-slider"
-                  style={{ height: "300px" }}
-                >
-                  {post.images.map((p) => (
-                    <CarouselImage src={p.url} height="300" />
-                  ))}
-                </Carousel>
-              </CarouselContainer>
-            )}
-            {isMapory && (
-              <MapContainer className="ml-3">
-                <Map markers={[post.mapory!.location]} height="300px" />
-              </MapContainer>
-            )}
-          </div>
-        </div>
-        <Nav className="mt-3">
-          <Nav.Item
-            onClick={likeOrUnlike}
-            icon={
-              <Icon
-                icon={post.likes.myLike ? "heart" : "heart-o"}
-                size="lg"
-                style={{ color: post.likes.myLike ? "red" : undefined }}
-              />
-            }
-            className="no-padding-navitem mr-2"
-          >
-            {post.likes.likesAmount > 0 ? post.likes.likesAmount : ""}
-          </Nav.Item>
-          <Nav.Item
-            onClick={() => setDisplayComments((dc) => !dc)}
-            icon={<Icon icon="comments-o" size="lg" />}
-            className="no-padding-navitem"
-          />
-        </Nav>
-        {displayComments && (
-          <>
-            <hr />
-            <PostComments postId={post.id} />
-          </>
-        )}
-      </Panel>
-    </div>
+          <Nav className="mt-3">
+            <Nav.Item
+              onClick={likeOrUnlike}
+              icon={
+                <Icon
+                  icon={post.likes.myLike ? "heart" : "heart-o"}
+                  size="lg"
+                  style={{ color: post.likes.myLike ? "red" : undefined }}
+                />
+              }
+              className="no-padding-navitem mr-2"
+            >
+              {post.likes.likesAmount > 0 ? post.likes.likesAmount : ""}
+            </Nav.Item>
+            <Nav.Item
+              onClick={() => setDisplayComments((dc) => !dc)}
+              icon={<Icon icon="comments-o" size="lg" />}
+              className="no-padding-navitem"
+            />
+          </Nav>
+          {displayComments && (
+            <>
+              <hr />
+              <PostComments postId={post.id} />
+            </>
+          )}
+        </Panel>
+      </div>
+      {updatePostModal}
+    </>
   );
 };

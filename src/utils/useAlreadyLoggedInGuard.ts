@@ -1,10 +1,6 @@
-import { RootStore } from "../redux/store";
-import { useSelector } from "react-redux";
+import { useLoggedInUser } from "../hooks/useLoggedInUser";
 
 export const useIsLoggedIn = () => {
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
-
+  const loggedInUser = useLoggedInUser();
   return [loggedInUser != null];
 };

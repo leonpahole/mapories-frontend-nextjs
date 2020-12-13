@@ -11,6 +11,7 @@ import {
   BecomeOnlineMessage,
 } from "../types/ChatroomMessage";
 import { RootStore } from "../redux/store";
+import { useLoggedInUser } from "../hooks/useLoggedInUser";
 
 const wsUrl = process.env.REACT_APP_WS_URL as string;
 
@@ -27,9 +28,7 @@ export default ({ children }: any) => {
   let socket: SocketIOClient.Socket | null = null;
   let ws: ChatSocketContext | null = null;
 
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
+  const loggedInUser = useLoggedInUser();
   const dispatch = useDispatch();
 
   const sendMessage = (chatroomId: string, message: string) => {

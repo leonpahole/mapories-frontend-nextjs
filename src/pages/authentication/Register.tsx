@@ -3,7 +3,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import * as Yup from "yup";
-import { register } from "../../api/auth.api";
+import { register, AuthenticationData } from "../../api/auth.api";
 import { MyTextInput } from "../../components/form/MyTextInput";
 import { MyAlert, MyAlertState } from "../../components/MyAlert";
 import SocialLoginButtonRow from "../../components/social/SocialLoginButtonRow";
@@ -58,8 +58,8 @@ const Register: React.FC = () => {
     onAlertClose,
   } = useAlert<RegisterAlertAction>(registerAlertReducer);
 
-  const onSocialLogin = (user: UserExcerpt) => {
-    dispatch(loginAction(user));
+  const onSocialLogin = (data: AuthenticationData) => {
+    dispatch(loginAction(data));
     history.push("/");
   };
 

@@ -1,16 +1,14 @@
-import React, { useState, useRef } from "react";
-import { Input, Modal, Button } from "rsuite";
-import { CreateNewPostOrMapory } from "./CreateNewPostOrMapory";
+import React, { useState } from "react";
+import { Input } from "rsuite";
 import { Post } from "../../types/Post";
+import { CreateNewPostOrMaporyModal } from "./CreateNewPostOrMaporyModal";
 
 interface CreateNewPostOrMaporyInputProps {
   onCreatePost(post: Post): void;
-  onUpdatePost(post: Post): void;
 }
 
 export const CreateNewPostOrMaporyInput: React.FC<CreateNewPostOrMaporyInputProps> = ({
   onCreatePost,
-  onUpdatePost,
 }) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
@@ -22,6 +20,11 @@ export const CreateNewPostOrMaporyInput: React.FC<CreateNewPostOrMaporyInputProp
     setModalOpen(false);
   };
 
+  const onCreate = (p: Post) => {
+    closeModal();
+    onCreatePost(p);
+  };
+
   return (
     <div>
       <Input
@@ -31,25 +34,12 @@ export const CreateNewPostOrMaporyInput: React.FC<CreateNewPostOrMaporyInputProp
         value={""}
         onChange={openModal}
       />
-      <Modal show={modalOpen} onHide={closeModal} size="sm">
-        <Modal.Header>
-          <p className="subtitle">Create post</p>
-        </Modal.Header>
-        <Modal.Body>
-          <CreateNewPostOrMapory
-            onCreate={onCreatePost}
-            onUpdate={onUpdatePost}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={closeModal} appearance="primary">
-            Ok
-          </Button>
-          <Button onClick={closeModal} appearance="subtle">
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <CreateNewPostOrMaporyModal
+        show={modalOpen}
+        onHide={closeModal}
+        size="lg"
+        onCreate={(p) => onCreate(p)}
+      />
     </div>
   );
 };

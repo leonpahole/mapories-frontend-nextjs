@@ -11,7 +11,11 @@ import {
 } from "react-google-login";
 import { FaFacebook, FaFacebookF, FaTwitter } from "react-icons/fa";
 import TwitterLogin from "react-twitter-auth";
-import { SocialProvider, loginSocial } from "../../api/auth.api";
+import {
+  SocialProvider,
+  loginSocial,
+  AuthenticationData,
+} from "../../api/auth.api";
 import { UserExcerpt } from "../../types/UserExcerpt";
 import { SocialProviderData } from "../../types/LoginSocialResponse";
 import { useDispatch } from "react-redux";
@@ -26,7 +30,7 @@ interface TwitterAccessTokenResponse {
 }
 
 interface SocialLoginButtonRowProps {
-  onLogin(user: UserExcerpt): void;
+  onLogin(user: AuthenticationData): void;
 }
 
 const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({
@@ -64,8 +68,8 @@ const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({
       accessTokenSecret
     );
 
-    if (loginSocialResponse.existingUser) {
-      onLogin(loginSocialResponse.existingUser);
+    if (loginSocialResponse.existingUserLoginData) {
+      onLogin(loginSocialResponse.existingUserLoginData);
     } else if (loginSocialResponse.nonExistingUser) {
       onRedirectToCreateAccountPage(
         loginSocialResponse.nonExistingUser,

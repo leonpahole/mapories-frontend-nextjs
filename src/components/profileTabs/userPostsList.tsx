@@ -24,7 +24,7 @@ export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
           Create a mapory
         </small>
       </Link>
-      <PostsList userId={userId} />
+      {/* <PostsList userId={userId} /> */}
     </div>
   );
 };

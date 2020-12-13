@@ -6,6 +6,7 @@ import { Chatroom } from "../../types/ChatroomMessage";
 import { useSelector } from "react-redux";
 import { RootStore } from "../../redux/store";
 import { getMyChatrooms } from "../../api/chat.api";
+import { useLoggedInUser } from "../../hooks/useLoggedInUser";
 
 const MAX_CHAT_WINDOWS = 2;
 
@@ -16,9 +17,7 @@ const ChatSideBar: React.FC = () => {
   const [chatrooms, setChatrooms] = useState<Chatroom[]>([]);
   const [loadingChatrooms, setLoadingChatrooms] = useState<boolean>(true);
 
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
+  const loggedInUser = useLoggedInUser();
 
   useEffect(() => {
     async function fetchChatrooms() {

@@ -24,6 +24,7 @@ import ChatSideBar from "./components/chat/ChatSideBar";
 import TopNavBar from "./components/navigation/TopNavBar";
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import Home from "./pages/Home";
+import { refreshToken } from "./api/auth.api";
 
 const BodyContainer = styled.div`
   padding: 40px 20px;
@@ -36,12 +37,14 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [isLoggedIn] = useIsLoggedIn();
 
+  useEffect(() => {}, []);
+
   useEffect(() => {
-    async function tryGetProfile() {
+    async function tryRefreshTokenAndGetProfile() {
       try {
-        const user = await profile();
-        if (user) {
-          dispatch(loginAction(user));
+        const authData = await refreshToken();
+        if (authData) {
+          dispatch(loginAction(authData));
         }
       } catch (e) {
         console.log(e);
@@ -50,7 +53,7 @@ const App: React.FC = () => {
       setLoading(false);
     }
 
-    tryGetProfile();
+    tryRefreshTokenAndGetProfile();
     // eslint-disable-next-line
   }, []);
 

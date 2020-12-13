@@ -39,6 +39,7 @@ export const Map: React.FC<MapProps> = ({
   mapRef,
   onDblClick,
   viewport: explicitViewport = defaultViewport,
+  children,
 }) => {
   const [viewport, setViewport] = useState(explicitViewport);
 
@@ -51,14 +52,14 @@ export const Map: React.FC<MapProps> = ({
     []
   );
 
-  const onDoubleClick = (e: PointerEvent) => {
+  const onDoubleClick = useCallback((e: PointerEvent) => {
     const location: MapLocation = {
       longitude: e.lngLat[0],
       latitude: e.lngLat[1],
     };
 
     onDblClick && onDblClick(location);
-  };
+  }, []);
 
   return (
     <MapGL
@@ -75,6 +76,7 @@ export const Map: React.FC<MapProps> = ({
       {markers.map((m) => (
         <MapMarker location={m} zoom={viewport.zoom} />
       ))}
+      {children}
     </MapGL>
   );
 };

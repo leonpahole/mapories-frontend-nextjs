@@ -1,11 +1,12 @@
 import { UserExcerpt } from "../../types/UserExcerpt";
+import { AuthenticationData } from "../../api/auth.api";
 
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS";
 
 export interface LoginSuccess {
   type: typeof LOGIN_SUCCESS;
-  payload: UserExcerpt;
+  payload: AuthenticationData;
 }
 
 export interface LogoutSuccess {

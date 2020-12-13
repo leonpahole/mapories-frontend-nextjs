@@ -1,5 +1,5 @@
 import { UserExcerpt } from "./UserExcerpt";
-import { SocialProvider } from "../api/auth.api";
+import { SocialProvider, AuthenticationData } from "../api/auth.api";
 
 export interface SocialProviderData {
   name: string;
@@ -8,7 +8,7 @@ export interface SocialProviderData {
 }
 
 export interface LoginSocialResponse {
-  existingUser: UserExcerpt | null;
+  existingUserLoginData: AuthenticationData | null;
   nonExistingUser: SocialProviderData | null;
 }
 

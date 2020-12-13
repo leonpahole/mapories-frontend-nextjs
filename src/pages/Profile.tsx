@@ -20,6 +20,7 @@ import {
 import { FriendRequests } from "../components/profileTabs/friendRequests";
 import { Friends } from "../components/profileTabs/friends";
 import { UserPostsList } from "../components/profileTabs/userPostsList";
+import { useLoggedInUser } from "../hooks/useLoggedInUser";
 
 const ProfileContainer = styled.div`
   display: flex;
@@ -50,9 +51,7 @@ const NavLinks: Record<string, NavLinkInfo> = {
 };
 
 const Profile: React.FC = () => {
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
+  const loggedInUser = useLoggedInUser();
 
   let { id } = useParams();
 

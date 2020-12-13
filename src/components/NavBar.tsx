@@ -1,25 +1,23 @@
 import React, { useState } from "react";
-
+import { useDispatch } from "react-redux";
+import { NavLink as Link, useHistory } from "react-router-dom";
 import {
-  Navbar,
-  NavbarToggler,
-  NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
+  Button,
+  Collapse,
+  FormInput,
   InputGroup,
   InputGroupAddon,
   InputGroupText,
-  FormInput,
-  Collapse,
-  Button,
+  Nav,
+  Navbar,
+  NavbarBrand,
+  NavbarToggler,
+  NavItem,
+  NavLink,
 } from "shards-react";
-
-import { NavLink as Link, useHistory } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootStore } from "../redux/store";
-import { logoutAction } from "../redux/auth/auth.actions";
 import { logout } from "../api/auth.api";
+import { useLoggedInUser } from "../hooks/useLoggedInUser";
+import { logoutAction } from "../redux/auth/auth.actions";
 import { useQuery } from "../utils/useQuery";
 
 interface NavLinkItem {
@@ -41,9 +39,7 @@ const NavBar: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const query = useQuery();
-  const loggedInUser = useSelector(
-    (state: RootStore) => state.auth.loggedInUser
-  );
+  const loggedInUser = useLoggedInUser();
 
   const [collapseOpen, setCollapseOpen] = useState<boolean>(false);
   const toggleCollapse = () => {

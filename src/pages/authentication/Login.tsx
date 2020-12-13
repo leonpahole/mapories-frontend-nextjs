@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { Button } from "rsuite";
 import * as Yup from "yup";
-import { login } from "../../api/auth.api";
+import { login, AuthenticationData } from "../../api/auth.api";
 import { MyCheckbox } from "../../components/form/MyCheckbox";
 import { MyTextInput } from "../../components/form/MyTextInput";
 import { MyAlert, MyAlertState } from "../../components/MyAlert";
@@ -71,8 +71,8 @@ const Login: React.FC = () => {
     onAlertClose,
   } = useAlert<LoginAlertAction>(loginAlertReducer);
 
-  const onLogin = (user: UserExcerpt) => {
-    dispatch(loginAction(user));
+  const onLogin = (data: AuthenticationData) => {
+    dispatch(loginAction(data));
     history.push("/");
   };
 
@@ -104,12 +104,12 @@ const Login: React.FC = () => {
           })}
           onSubmit={async (values, { resetForm }) => {
             try {
-              const user = await login(
+              const data = await login(
                 values.email,
                 values.password,
                 values.rememberMe
               );
-              onLogin(user);
+              onLogin(data);
               resetForm();
             } catch (e) {
               const networkError = e == null || e.response == null;

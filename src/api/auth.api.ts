@@ -4,6 +4,11 @@ import { LoginSocialResponse } from "../types/LoginSocialResponse";
 
 export type SocialProvider = "facebook" | "google" | "twitter";
 
+export interface AuthenticationData {
+  accessToken: string;
+  user: UserExcerpt;
+}
+
 export const register = async (
   email: string,
   name: string,
@@ -29,14 +34,27 @@ export const login = async (
   email: string,
   password: string,
   rememberMe: boolean = false
-): Promise<UserExcerpt> => {
-  const res = await api.post<UserExcerpt>(`auth/login`, {
+): Promise<AuthenticationData> => {
+  const res = await api.post<AuthenticationData>(`auth/login`, {
     email,
     password,
     rememberMe,
   });
 
   return res.data;
+};
+
+export const refreshToken = async (): Promise<AuthenticationData> => {
+  const res = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/refresh-token`,
+    {
+      method: "POST",
+      credentials: "include",
+    }
+  );
+
+  const data = await res.json();
+  return data;
 };
 
 export const logout = async (): Promise<boolean> => {
@@ -103,13 +121,16 @@ export const registerSocial = async (
   accessToken: string,
   profilePictureUrl?: string,
   accessTokenSecret?: string
-): Promise<UserExcerpt> => {
-  const res = await api.post<UserExcerpt>(`auth/register-social/${provider}`, {
-    name,
-    accessToken,
-    accessTokenSecret,
-    profilePictureUrl,
-  });
+): Promise<AuthenticationData> => {
+  const res = await api.post<AuthenticationData>(
+    `auth/register-social/${provider}`,
+    {
+      name,
+      accessToken,
+      accessTokenSecret,
+      profilePictureUrl,
+    }
+  );
 
   return res.data;
 };
