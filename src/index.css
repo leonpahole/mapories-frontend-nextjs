@@ -99,3 +99,24 @@ button:focus {
 .multiline-text {
   white-space: pre-line;
 }
+
+.comment-card-panel > .rs-panel-heading {
+  padding-bottom: 5px;
+}
+
+.comment-card-panel > .rs-panel-body {
+  padding-bottom: 5px;
+}
+
+.comment-card-panel > .rs-panel-body .rs-form {
+  margin-top: 13px;
+  margin-bottom: 10px;
+}
+
+.reply-input {
+  margin-left: 20px;
+}
+
+.chat-drawer .rs-panel-heading {
+  padding: unset;
+}

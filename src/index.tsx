@@ -12,6 +12,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import ChatSocketProvider from "./socket/ChatSocket";
+import NotificationSocketProvider from "./socket/NotificationSocket";
 
 require("typeface-raleway");
 
@@ -25,9 +26,11 @@ ReactDOM.render(
     <SnackbarProvider>
       <Provider store={store}>
         <ChatSocketProvider>
-          <React.StrictMode>
-            <App />
-          </React.StrictMode>
+          <NotificationSocketProvider>
+            <React.StrictMode>
+              <App />
+            </React.StrictMode>
+          </NotificationSocketProvider>
         </ChatSocketProvider>
       </Provider>
     </SnackbarProvider>

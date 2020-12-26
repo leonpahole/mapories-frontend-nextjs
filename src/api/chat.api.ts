@@ -7,16 +7,21 @@ import {
 } from "../types/ChatroomMessage";
 import { PaginatedResponse } from "../types/PaginatedResponse";
 
+export const getUnreadChatsCount = async (): Promise<{
+  unreadCount: number;
+}> => {
+  const res = await api.get<{ unreadCount: number }>(`chat/unreadCount`);
+  return res.data;
+};
+
 export const getMyIChatrooms = async (): Promise<IChatroom[]> => {
   const res = await api.get<IChatroom[]>(`chat/rooms`);
   return res.data;
 };
 
-export const getMyChatrooms = async (
-  currentUserId: string
-): Promise<Chatroom[]> => {
+export const getMyChatrooms = async (): Promise<Chatroom[]> => {
   const iChatrooms = await getMyIChatrooms();
-  return convertIChatroomsToChatrooms(iChatrooms, currentUserId);
+  return convertIChatroomsToChatrooms(iChatrooms);
 };
 
 export const getChatroomMessages = async (

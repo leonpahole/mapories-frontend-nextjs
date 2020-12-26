@@ -1,5 +1,4 @@
-import React from "react";
-import { Button } from "shards-react";
+import React, { useEffect } from "react";
 import { Post } from "../../types/Post";
 import { Loading } from "../Loading";
 import { PostCard } from "./PostCard";
@@ -33,6 +32,29 @@ export const PostsList: React.FC<PostsListProps> = ({
   onLikeOrUnlike,
   moreAvailable,
 }) => {
+  useEffect(() => {
+    document.addEventListener("scroll", trackScrolling);
+
+    return () => {
+      document.removeEventListener("scroll", trackScrolling);
+    };
+  }, [loading, moreAvailable]);
+
+  const trackScrolling = () => {
+    if (loading || !moreAvailable) {
+      return;
+    }
+
+    const wrappedElement = document.getElementById("post-list-wrapper");
+    if (isBottom(wrappedElement)) {
+      fetchMore();
+    }
+  };
+
+  const isBottom = (el: any) => {
+    return el.getBoundingClientRect().bottom <= window.innerHeight;
+  };
+
   if (posts.length === 0 && loading) {
     return <Loading />;
   }
@@ -40,15 +62,16 @@ export const PostsList: React.FC<PostsListProps> = ({
   let postsList = null;
 
   if (posts.length === 0) {
-    postsList = <div>No posts yet.</div>;
+    postsList = (
+      <div className="d-flex justify-content-center">No posts yet.</div>
+    );
   } else {
     postsList = (
       <div>
         {posts.map((p) => (
           <PostCard
+            key={p.post.id}
             postInfo={p}
-            showSeeDetails={true}
-            showMap={false}
             onLikeOrUnlike={(isLike: boolean) => onLikeOrUnlike(p, isLike)}
             onDelete={() => onDelete(p.post.id)}
             onUpdate={onUpdate}
@@ -59,12 +82,9 @@ export const PostsList: React.FC<PostsListProps> = ({
   }
 
   return (
-    <div>
+    <div id="post-list-wrapper">
       {postsList}
       {loading && <Loading />}
-      {!loading && moreAvailable && (
-        <Button onClick={fetchMore}>Load more</Button>
-      )}
     </div>
   );
 };

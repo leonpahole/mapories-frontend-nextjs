@@ -1,43 +1,77 @@
 import { Formik } from "formik";
 import React from "react";
 import * as Yup from "yup";
-import { createComment, updateComment } from "../../api/post.api";
+import {
+  createComment,
+  createCommentOnComment,
+  updateComment,
+  updateCommentOnComment,
+} from "../../api/post.api";
 import { CenteredForm } from "../../styledComponents/StyledForm";
 import { Comment } from "../../types/Comment";
 import { MyTextInput } from "../form/MyTextInput";
-import { Avatar, Icon } from "rsuite";
+import { Alert, Avatar, Icon } from "rsuite";
 
 interface NewPostCommentInputProps {
   onCommentCreate?: (comment: Comment) => void;
   onCommentUpdate?: (content: string) => void;
   postId: string;
+  commentId?: string;
   existingComment?: Comment;
+  replyToUser?: string;
 }
 
 export const NewPostCommentInput: React.FC<NewPostCommentInputProps> = ({
   onCommentCreate,
   onCommentUpdate,
   postId,
+  commentId,
   existingComment,
+  replyToUser,
 }) => {
   return (
     <Formik
       validateOnBlur={false}
       validateOnChange={false}
       initialValues={{
-        content: existingComment ? existingComment.content : "",
+        content: existingComment
+          ? existingComment.content
+          : replyToUser
+          ? "@" + replyToUser + " "
+          : "",
       }}
       validationSchema={Yup.object({
         content: Yup.string().required("Please enter content!"),
       })}
       onSubmit={async (values, { resetForm, setErrors }) => {
         try {
-          if (existingComment) {
-            await updateComment(postId, existingComment.id, values.content);
-            onCommentUpdate && onCommentUpdate(values.content);
+          if (commentId) {
+            if (existingComment) {
+              await updateCommentOnComment(
+                commentId,
+                existingComment.id,
+                values.content
+              );
+
+              Alert.info("Comment updated.");
+              onCommentUpdate && onCommentUpdate(values.content);
+            } else {
+              const comment = await createCommentOnComment(
+                commentId,
+                values.content!
+              );
+              onCommentCreate && onCommentCreate(comment);
+            }
           } else {
-            const comment = await createComment(postId, values.content!);
-            onCommentCreate && onCommentCreate(comment);
+            if (existingComment) {
+              await updateComment(postId, existingComment.id, values.content);
+
+              Alert.info("Comment updated.");
+              onCommentUpdate && onCommentUpdate(values.content);
+            } else {
+              const comment = await createComment(postId, values.content!);
+              onCommentCreate && onCommentCreate(comment);
+            }
           }
 
           resetForm();
@@ -54,6 +88,7 @@ export const NewPostCommentInput: React.FC<NewPostCommentInputProps> = ({
           fluid
           onSubmit={handleSubmit}
           style={{ maxWidth: "unset" }}
+          className={commentId ? `reply-input` : ""}
         >
           <div className="d-flex align-items-center">
             {existingComment == null && (
@@ -66,7 +101,9 @@ export const NewPostCommentInput: React.FC<NewPostCommentInputProps> = ({
                 name="content"
                 placeholder={
                   existingComment == null
-                    ? "Do you have anything to say about this post?"
+                    ? commentId
+                      ? "Write a reply"
+                      : "Do you have anything to say about this post?"
                     : ""
                 }
                 size="lg"

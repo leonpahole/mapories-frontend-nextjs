@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardBody, CardTitle, Button } from "shards-react";
+import { Alert } from "rsuite";
 import {
-  getFriendRequests,
   acceptFriendRequest,
   declineFriendRequest,
+  getFriendRequests,
 } from "../../api/user.api";
-import { FriendRequest } from "../../types/FriendRequest";
+import { UserExcerpt } from "../../types/UserExcerpt";
 import { Loading } from "../Loading";
-import { request } from "http";
+import { UserList } from "../users/UserList";
 
 export const FriendRequests: React.FC<{}> = () => {
-  const [requests, setRequests] = useState<FriendRequest[]>([]);
+  const [requests, setRequests] = useState<UserExcerpt[]>([]);
   const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchRequests() {
       try {
         const fRequests = await getFriendRequests();
-        setRequests(fRequests);
+        setRequests(fRequests.map((fr) => fr.from));
       } catch (e) {
         console.log(e);
       }
@@ -29,22 +28,18 @@ export const FriendRequests: React.FC<{}> = () => {
     fetchRequests();
   }, []);
 
-  if (loadingRequests) {
-    return <Loading />;
-  }
-
   const removeFriendRequest = (userId: string) => {
-    setRequests((r) => r.filter((r1) => r1.from.id !== userId));
+    setRequests((r) => r.filter((r1) => r1.id !== userId));
   };
 
   const onAcceptRequestClick = async (userId: string) => {
     try {
       await acceptFriendRequest(userId);
       removeFriendRequest(userId);
-      alert("Acccept!");
+      Alert.info(`Request accepted! You are now friends.`);
     } catch (e) {
       console.log(e);
-      alert("Error!");
+      Alert.error("And error occured. Try again.");
     }
   };
 
@@ -52,43 +47,30 @@ export const FriendRequests: React.FC<{}> = () => {
     try {
       await declineFriendRequest(userId);
       removeFriendRequest(userId);
-      alert("Declined!");
+      Alert.info("Request declined.");
     } catch (e) {
       console.log(e);
-      alert("Error!");
+      Alert.error("And error occured. Try again.");
     }
   };
 
-  let requestsList = null;
-
-  if (requests.length === 0) {
-    requestsList = <div>No friend requests yet.</div>;
-  } else {
-    requestsList = (
-      <div>
-        {requests.map((r) => (
-          <Card className="mb-3">
-            <CardBody>
-              <CardTitle>{r.from.name}</CardTitle>
-              <Link to={`/profile/${r.from.id}`}>
-                <small className="text-secondary c-pointer block mt-3 mb-3">
-                  See profile
-                </small>
-              </Link>
-              <div className="d-flex">
-                <Button onClick={() => onAcceptRequestClick(r.from.id)}>
-                  Accept friend request
-                </Button>
-                <Button onClick={() => onDeclineRequestClick(r.from.id)}>
-                  Decline friend request
-                </Button>
-              </div>
-            </CardBody>
-          </Card>
-        ))}
-      </div>
-    );
+  if (loadingRequests) {
+    return <Loading />;
   }
 
-  return <div>{requestsList}</div>;
+  if (requests.length === 0) {
+    return <p className="d-flex justify-content-center">No requests yet.</p>;
+  }
+
+  return (
+    <div>
+      <h3 className="mb-2">Friend requests</h3>
+      <UserList
+        users={requests}
+        isFriendRequestList={true}
+        onAcceptFriendRequest={onAcceptRequestClick}
+        onDeclineFriendRequest={onDeclineRequestClick}
+      />
+    </div>
+  );
 };

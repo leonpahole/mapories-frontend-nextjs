@@ -30,6 +30,11 @@ export const getMyFeed = async (
   return res.data;
 };
 
+export const getFeedMapData = async (): Promise<MaporyMapItem[]> => {
+  const res = await api.get<MaporyMapItem[]>(`post/my-mapories-feed`);
+  return res.data;
+};
+
 export const getMapDataForUser = async (
   userId: string | null = null
 ): Promise<MaporyMapItem[]> => {
@@ -110,7 +115,7 @@ export const createComment = async (
   id: string,
   content: string
 ): Promise<Comment> => {
-  const res = await api.post<Comment>(`post/${id}/comment`, {
+  const res = await api.post<Comment>(`comment/post/${id}`, {
     content,
   });
 
@@ -122,7 +127,7 @@ export const updateComment = async (
   commentId: string,
   content: string
 ): Promise<void> => {
-  await api.patch<void>(`post/${postId}/comment/${commentId}`, {
+  await api.patch<void>(`comment/post/${postId}/${commentId}`, {
     content,
   });
 };
@@ -130,8 +135,11 @@ export const updateComment = async (
 export const deleteComment = async (
   postId: string,
   commentId: string
-): Promise<void> => {
-  await api.delete<void>(`post/${postId}/comment/${commentId}`);
+): Promise<{ markedDeleted: boolean }> => {
+  const res = await api.delete<{ markedDeleted: boolean }>(
+    `comment/post/${postId}/${commentId}`
+  );
+  return res.data;
 };
 
 export const getPostComments = async (
@@ -140,7 +148,7 @@ export const getPostComments = async (
   pageSize: number = 10
 ): Promise<PaginatedResponse<Comment>> => {
   const res = await api.get<PaginatedResponse<Comment>>(
-    `post/${id}/comment?pageNum=${pageNum}&pageSize=${pageSize}`
+    `comment/post/${id}?pageNum=${pageNum}&pageSize=${pageSize}`
   );
 
   return res.data;
@@ -150,12 +158,76 @@ export const likeComment = async (
   postId: string,
   commentId: string
 ): Promise<void> => {
-  await api.post<Post>(`post/${postId}/comment/${commentId}/like`);
+  await api.post<Post>(`comment/post/${postId}/${commentId}/like`);
 };
 
 export const unlikeComment = async (
   postId: string,
   commentId: string
 ): Promise<void> => {
-  await api.post<Post>(`post/${postId}/comment/${commentId}/unlike`);
+  await api.post<Post>(`comment/post/${postId}/${commentId}/unlike`);
+};
+
+/* comments on comments */
+
+export const createCommentOnComment = async (
+  commentId: string,
+  content: string
+): Promise<Comment> => {
+  const res = await api.post<Comment>(`comment/comment/${commentId}`, {
+    content,
+  });
+
+  return res.data;
+};
+
+export const updateCommentOnComment = async (
+  commentId: string,
+  commentOnCommentId: string,
+  content: string
+): Promise<void> => {
+  await api.patch<void>(`comment/comment/${commentId}/${commentOnCommentId}`, {
+    content,
+  });
+};
+
+export const deleteCommentOnComment = async (
+  commentId: string,
+  commentOnCommentId: string
+): Promise<{ parentDeleted: boolean }> => {
+  const res = await api.delete<{ parentDeleted: boolean }>(
+    `comment/comment/${commentId}/${commentOnCommentId}`
+  );
+
+  return res.data;
+};
+
+export const getCommentComments = async (
+  commentId: string,
+  pageNum: number,
+  pageSize: number = 10
+): Promise<PaginatedResponse<Comment>> => {
+  const res = await api.get<PaginatedResponse<Comment>>(
+    `comment/comment/${commentId}?pageNum=${pageNum}&pageSize=${pageSize}`
+  );
+
+  return res.data;
+};
+
+export const likeCommentOnComment = async (
+  commentId: string,
+  commentOnCommentId: string
+): Promise<void> => {
+  await api.post<Post>(
+    `comment/comment/${commentId}/${commentOnCommentId}/like`
+  );
+};
+
+export const unlikeCommentOnComment = async (
+  commentId: string,
+  commentOnCommentId: string
+): Promise<void> => {
+  await api.post<Post>(
+    `comment/comment/${commentId}/${commentOnCommentId}/unlike`
+  );
 };

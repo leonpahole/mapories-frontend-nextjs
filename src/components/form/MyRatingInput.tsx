@@ -1,6 +1,6 @@
-import React from "react";
 import { useField } from "formik";
-import { FormGroup, ControlLabel, FormControl, HelpBlock, Rate } from "rsuite";
+import React from "react";
+import { ControlLabel, FormGroup, HelpBlock, Rate } from "rsuite";
 
 export const MyRatingInput = ({ label, help, ...props }: any) => {
   const [field, _, helpers] = useField(props);

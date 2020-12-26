@@ -54,6 +54,10 @@ export const refreshToken = async (): Promise<AuthenticationData> => {
   );
 
   const data = await res.json();
+  if (res.status >= 400) {
+    throw data;
+  }
+
   return data;
 };
 

@@ -12,3 +12,10 @@ export const useLoggedInUser = () => {
   );
   return loggedInUser;
 };
+
+export const useUnreadNotificationCount = () => {
+  const unreadNotificationCount = useSelector(
+    (state: RootStore) => state.notifications.unreadCount
+  );
+  return unreadNotificationCount;
+};

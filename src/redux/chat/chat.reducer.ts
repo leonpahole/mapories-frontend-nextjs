@@ -1,37 +1,31 @@
+import { Chatroom } from "../../types/ChatroomMessage";
 import {
-  ChatActionTypes,
-  UPDATE_CHAT_LOG,
-  REMOVE_ONLINE_USERS,
+  ADD_MESSAGES_TO_CHATROOM,
   ADD_ONLINE_USERS,
-  ADD_MESSAGES,
+  ChatActionTypes,
+  CLEAR_CHAT_DATA,
+  RECEIVE_MESSAGE,
+  REMOVE_ONLINE_USERS,
+  SET_CHATROOMS,
+  SET_CHATROOM_READ,
+  SET_CHATROOM_TYPING,
+  SET_UNREAD_CHATS_COUNT,
+  START_LOADING_CHATROOMS,
+  START_LOADING_MESSAGES,
 } from "./chat.actionTypes";
-import { ChatroomMessage } from "../../types/ChatroomMessage";
-import { act } from "@testing-library/react";
-
-export interface RoomStateI {
-  moreAvailable: boolean;
-  chatroomId: string;
-  messages: ChatroomMessage[];
-}
-
-export interface RoomOnlineStatus {
-  chatroomId: string;
-  usersOnline: string[];
-}
 
 export interface ChatStateI {
-  rooms: RoomStateI[];
-  onlineChatrooms: RoomOnlineStatus[];
-  lastMessageChatroom: {
-    id: string;
-    date: Date;
-  } | null;
+  unreadCount: number;
+  chatrooms: Chatroom[];
+  loading: boolean;
+  mostRecentMessageChatroom: { id: string; date: Date } | null;
 }
 
 const defaultState: ChatStateI = {
-  rooms: [],
-  onlineChatrooms: [],
-  lastMessageChatroom: null,
+  unreadCount: 0,
+  chatrooms: [],
+  mostRecentMessageChatroom: null,
+  loading: false,
 };
 
 const chatReducer = (
@@ -39,124 +33,218 @@ const chatReducer = (
   action: ChatActionTypes
 ): ChatStateI => {
   switch (action.type) {
-    case ADD_ONLINE_USERS:
-      const newChatrooms = state.onlineChatrooms.slice();
-      action.payload.forEach((c) => {
-        const chatroom = newChatrooms.find(
-          (nc) => nc.chatroomId === c.chatroomId
-        );
+    case START_LOADING_CHATROOMS:
+      return {
+        ...state,
+        loading: true,
+      };
 
-        if (chatroom) {
-          const existingUser = chatroom.usersOnline.find((u) => u === c.userId);
-          if (!existingUser) {
-            chatroom.usersOnline.push(c.userId);
-          }
-        } else {
-          newChatrooms.push({
-            chatroomId: c.chatroomId,
-            usersOnline: [c.userId],
-          });
+    case SET_CHATROOMS:
+      return {
+        ...state,
+        loading: false,
+        chatrooms: action.payload,
+      };
+
+    case START_LOADING_MESSAGES:
+      const updatedLoadingChatrooms = state.chatrooms.map((c) => {
+        if (c.id === action.payload.chatroomId) {
+          return {
+            ...c,
+            messages: {
+              ...c.messages,
+              loading: true,
+            },
+          };
         }
+        return c;
       });
 
       return {
         ...state,
-        onlineChatrooms: newChatrooms,
+        chatrooms: updatedLoadingChatrooms,
+      };
+
+    case ADD_MESSAGES_TO_CHATROOM:
+      const updatedAddedMessageChatrooms = state.chatrooms.map((c) => {
+        if (c.id === action.payload.chatroomId) {
+          return {
+            ...c,
+            messages: {
+              ...c.messages,
+              data: [...c.messages.data, ...action.payload.messages],
+              moreAvailable: action.payload.moreAvailable,
+              loading: false,
+            },
+          };
+        }
+        return c;
+      });
+
+      return {
+        ...state,
+        chatrooms: updatedAddedMessageChatrooms,
+      };
+
+    case ADD_ONLINE_USERS:
+      const currUserIdOnline = action.payload.currentUserId;
+      const updatedOnlineChatrooms = state.chatrooms.map((c) => {
+        const online = action.payload.messages.filter(
+          (cc) => cc.chatroomId === c.id
+        );
+        if (online.length > 0) {
+          return {
+            ...c,
+            isOnline: online.some((o) => o.userId !== currUserIdOnline),
+            participants: c.participants.map((p) => {
+              if (online.some((o) => p.id === o.userId)) {
+                return {
+                  ...p,
+                  isOnline: true,
+                };
+              }
+
+              return p;
+            }),
+          };
+        }
+        return c;
+      });
+
+      return {
+        ...state,
+        chatrooms: updatedOnlineChatrooms,
       };
 
     case REMOVE_ONLINE_USERS:
-      const newChatroomsD = state.onlineChatrooms.slice();
-      action.payload.forEach((c) => {
-        const chatroom = newChatroomsD.find(
-          (nc) => nc.chatroomId === c.chatroomId
+      const currUserIdOffline = action.payload.currentUserId;
+      const updatedOfflineChatrooms = state.chatrooms.map((c) => {
+        const offline = action.payload.messages.filter(
+          (cc) => cc.chatroomId === c.id
         );
+        if (offline.length > 0) {
+          const participants = c.participants.map((p) => {
+            if (offline.some((o) => p.id === o.userId)) {
+              return {
+                ...p,
+                isOnline: false,
+              };
+            }
 
-        console.log(chatroom);
+            return p;
+          });
 
-        if (chatroom) {
-          chatroom.usersOnline = chatroom.usersOnline.filter(
-            (u) => u !== c.userId
-          );
+          return {
+            ...c,
+            isOnline: participants.some(
+              (p) => p.isOnline && p.id !== currUserIdOffline
+            ),
+            participants,
+          };
         }
+        return c;
       });
 
       return {
         ...state,
-        onlineChatrooms: newChatroomsD.filter((c) => c.usersOnline.length > 0),
+        chatrooms: updatedOfflineChatrooms,
       };
 
-    case UPDATE_CHAT_LOG:
-      if (state.rooms.some((r) => r.chatroomId === action.payload.chatroomId)) {
-        const newRooms = state.rooms.map((r) => {
-          if (r.chatroomId !== action.payload.chatroomId) {
-            return r;
-          }
+    case RECEIVE_MESSAGE:
+      const currUserIdReceive = action.payload.currentUserId;
+      const isMine = action.payload.message.sender.id === currUserIdReceive;
 
+      const updatedReceiveMessageChatrooms = state.chatrooms.map((c) => {
+        if (c.id === action.payload.chatroomId) {
           return {
-            ...r,
-            messages: [...r.messages, action.payload.message],
+            ...c,
+            isUnread: !isMine,
+            participants: c.participants.map((p) => {
+              return {
+                ...p,
+                isUnread: p.id !== action.payload.message.sender.id,
+              };
+            }),
+            messages: {
+              ...c.messages,
+              data: [...c.messages.data, action.payload.message],
+            },
           };
-        });
+        }
 
-        return {
-          ...state,
-          rooms: newRooms,
-          lastMessageChatroom: {
-            id: action.payload.chatroomId,
-            date: new Date(),
-          },
-        };
-      } else {
-        return {
-          ...state,
-          rooms: [
-            ...state.rooms,
-            {
-              moreAvailable: true,
-              chatroomId: action.payload.chatroomId,
-              messages: [action.payload.message],
-            },
-          ],
-          lastMessageChatroom: {
-            id: action.payload.chatroomId,
-            date: new Date(),
-          },
-        };
-      }
+        return c;
+      });
 
-    case ADD_MESSAGES:
-      if (state.rooms.some((r) => r.chatroomId === action.payload.chatroomId)) {
-        const newRooms = state.rooms.map(
-          (r): RoomStateI => {
-            if (r.chatroomId !== action.payload.chatroomId) {
-              return r;
-            }
+      return {
+        ...state,
+        chatrooms: updatedReceiveMessageChatrooms,
+        unreadCount: isMine ? state.unreadCount : state.unreadCount + 1,
+        mostRecentMessageChatroom: {
+          id: action.payload.chatroomId,
+          date: new Date(),
+        },
+      };
 
-            return {
-              ...r,
-              moreAvailable: action.payload.moreAvailable,
-              messages: [...action.payload.messages, ...r.messages],
-            };
-          }
-        );
+    case SET_UNREAD_CHATS_COUNT:
+      return {
+        ...state,
+        unreadCount: Math.max(0, action.payload),
+      };
 
-        return {
-          ...state,
-          rooms: newRooms,
-        };
-      } else {
-        return {
-          ...state,
-          rooms: [
-            ...state.rooms,
-            {
-              moreAvailable: action.payload.moreAvailable,
-              chatroomId: action.payload.chatroomId,
-              messages: action.payload.messages,
-            },
-          ],
-        };
-      }
+    case SET_CHATROOM_READ:
+      const currUserIdRead = action.payload.currentUserId;
+      const isMineRead = action.payload.userId === currUserIdRead;
+
+      const updatedReadChatrooms = state.chatrooms.map((c) => {
+        if (c.id === action.payload.chatroomId) {
+          return {
+            ...c,
+            isUnread: !isMineRead,
+            participants: c.participants.map((p) => {
+              return {
+                ...p,
+                isUnread: p.isUnread || p.id === action.payload.userId,
+              };
+            }),
+          };
+        }
+        return c;
+      });
+
+      return {
+        ...state,
+        chatrooms: updatedReadChatrooms,
+        unreadCount: isMineRead
+          ? Math.max(0, state.unreadCount - 1)
+          : state.unreadCount,
+      };
+
+    case SET_CHATROOM_TYPING:
+      const updatedTypingChatrooms = state.chatrooms.map((c) => {
+        if (c.id === action.payload.chatroomId) {
+          return {
+            ...c,
+            participants: c.participants.map((p) => {
+              return {
+                ...p,
+                isTyping: p.isUnread || p.id === action.payload.userId,
+              };
+            }),
+          };
+        }
+        return c;
+      });
+
+      return {
+        ...state,
+        chatrooms: updatedTypingChatrooms,
+      };
+
+    case CLEAR_CHAT_DATA:
+      return {
+        ...defaultState,
+      };
+
     default:
       return state;
   }

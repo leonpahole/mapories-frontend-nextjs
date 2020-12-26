@@ -16,11 +16,11 @@ import {
   loginSocial,
   AuthenticationData,
 } from "../../api/auth.api";
-import { UserExcerpt } from "../../types/UserExcerpt";
 import { SocialProviderData } from "../../types/LoginSocialResponse";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { createSocialAccountAction } from "../../redux/createSocialAccount/createSocialAccount.actions";
+import { Alert } from "rsuite";
 
 interface TwitterAccessTokenResponse {
   oauth_token: string;
@@ -87,6 +87,7 @@ const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({
   const responseFacebook = async (
     response: ReactFacebookLoginInfo | ReactFacebookFailureResponse
   ) => {
+    console.log("RESPONSE FB");
     try {
       if ("accessToken" in response) {
         const success = await doLoginSocial(response.accessToken, "facebook");
@@ -98,7 +99,7 @@ const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({
       console.log(e);
     }
 
-    alert("Failed to login using FB!");
+    Alert.error("Failed to login using Facebook!");
   };
 
   const responseGoogle = async (
@@ -115,12 +116,12 @@ const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({
       console.log(e);
     }
 
-    alert("Failed to login using Google!");
+    Alert.error("Failed to login using Google!");
   };
 
   const responseGoogleFailure = (error: any) => {
     console.log(error);
-    alert("Failed to login using Google!");
+    Alert.error("Failed to login using Google!");
   };
 
   const responseTwitter = async (res: any) => {
@@ -138,11 +139,11 @@ const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({
       console.log(e);
     }
 
-    alert("Failed to login using Google!");
+    Alert.error("Failed to login using Twitter!");
   };
 
   const responseTwitterFailure = (error: any) => {
-    alert(error);
+    Alert.error("Failed to login using Twitter!");
   };
 
   return (

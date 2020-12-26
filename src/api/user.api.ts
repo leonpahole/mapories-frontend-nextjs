@@ -2,6 +2,7 @@ import { UserExcerpt } from "../types/UserExcerpt";
 import { api } from "./api";
 import { UserProfileData, FriendStatus } from "../types/UserProfile";
 import { FriendRequest } from "../types/FriendRequest";
+import { PaginatedResponse } from "../types/PaginatedResponse";
 
 export const profile = async (): Promise<UserExcerpt> => {
   const res = await api.get<UserExcerpt>(`auth/me`);
@@ -29,9 +30,12 @@ export const getUserProfile = async (
   return res.data;
 };
 
-export const searchUsers = async (q: string): Promise<UserProfileData[]> => {
-  const res = await api.get<UserProfileData[]>(`user/search?q=${q}`);
-
+export const searchUsers = async (
+  q: string
+): Promise<PaginatedResponse<UserExcerpt>> => {
+  const res = await api.get<PaginatedResponse<UserExcerpt>>(
+    `user/search?q=${q}`
+  );
   return res.data;
 };
 
@@ -69,4 +73,8 @@ export const getFriendRequests = async (): Promise<FriendRequest[]> => {
 export const getFriends = async (): Promise<UserExcerpt[]> => {
   const res = await api.get<UserExcerpt[]>(`user/friends`);
   return res.data;
+};
+
+export const deleteAccount = async (): Promise<void> => {
+  await api.delete<void>(`user`);
 };

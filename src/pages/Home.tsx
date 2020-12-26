@@ -97,7 +97,7 @@ const Home: React.FC = memo(() => {
             </p>
             <div className="mt-4 mb-4">
               {features.map((f) => (
-                <p className="mt-2 subsubtitle">
+                <p className="mt-2 subsubtitle" key={f.text}>
                   <FeatureContainer>
                     <IconContainer>
                       <Icon icon={f.icon as any} size="lg" />

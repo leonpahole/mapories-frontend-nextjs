@@ -3,56 +3,50 @@ import { UserExcerpt } from "./UserExcerpt";
 // comes from api
 export type IChatroom = {
   id: string;
-  name: string | null;
-  lastMessagedAt: Date | null;
-  participants: UserExcerpt[];
+  name: string;
+  participants: ChatroomParticipant[];
+  isUnread: boolean;
+};
+
+export type ChatroomParticipant = UserExcerpt & {
+  isOnline: boolean;
+  isTyping: boolean;
+  isUnread: boolean;
 };
 
 // ready for use in chatroom list
-export type Chatroom = {
+export interface Chatroom {
   id: string;
   name: string;
   isUnread: boolean;
-  lastMessagedAt: Date | null;
-  participant?: UserExcerpt;
-  participants?: UserExcerpt[];
-};
+  isOnline: boolean;
+  participants: ChatroomParticipant[];
+  messages: {
+    loading: boolean;
+    moreAvailable: boolean;
+    data: ChatroomMessage[];
+  };
+}
 
 export const convertIChatroomsToChatrooms = (
-  iChatrooms: IChatroom[],
-  currentUserId: string
+  iChatrooms: IChatroom[]
 ): Chatroom[] => {
-  return iChatrooms.map((c) => convertIChatroomToChatroom(c, currentUserId));
+  return iChatrooms.map((c) => convertIChatroomToChatroom(c));
 };
 
-export const convertIChatroomToChatroom = (
-  iChatroom: IChatroom,
-  currentUserId: string
-): Chatroom => {
+export const convertIChatroomToChatroom = (iChatroom: IChatroom): Chatroom => {
   const chatroom: Chatroom = {
     id: iChatroom.id,
-    isUnread: false,
-    name: iChatroom.name || "",
-    lastMessagedAt: iChatroom.lastMessagedAt,
+    name: iChatroom.name,
+    isUnread: iChatroom.isUnread,
+    isOnline: false,
+    participants: iChatroom.participants,
+    messages: {
+      loading: false,
+      moreAvailable: false,
+      data: [],
+    },
   };
-
-  if (iChatroom.participants.length > 2) {
-    chatroom.participants = iChatroom.participants.filter(
-      (p) => p.id !== currentUserId
-    );
-
-    if (chatroom.name.length === 0) {
-      chatroom.name = chatroom.participants.map((p) => p.name).join(", ");
-    }
-  } else {
-    chatroom.participant = iChatroom.participants.find(
-      (p) => p.id !== currentUserId
-    );
-
-    if (chatroom.name.length === 0) {
-      chatroom.name = chatroom.participant!.name;
-    }
-  }
 
   return chatroom;
 };
@@ -68,7 +62,7 @@ export type UpdateChatLogMessage = {
   message: ChatroomMessage;
 };
 
-export type UpdateChatLogMessages = {
+export type AddMessagesToChatroomPayload = {
   chatroomId: string;
   messages: ChatroomMessage[];
   moreAvailable: boolean;
@@ -77,4 +71,16 @@ export type UpdateChatLogMessages = {
 export type BecomeOnlineMessage = {
   userId: string;
   chatroomId: string;
+};
+
+export type ReceiveMessagePayload = {
+  chatroomId: string;
+  message: ChatroomMessage;
+  currentUserId: string;
+};
+
+export type SetChatroomTypingPayload = {
+  chatroomId: string;
+  userId: string;
+  typing: boolean;
 };

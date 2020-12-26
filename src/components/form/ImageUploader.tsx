@@ -1,7 +1,6 @@
 import React from "react";
 import { Icon, Uploader } from "rsuite";
 import { FileType } from "rsuite/lib/Uploader";
-import { PostImage } from "../../types/Post";
 
 interface ImageUploaderProps {
   list: FileType[];

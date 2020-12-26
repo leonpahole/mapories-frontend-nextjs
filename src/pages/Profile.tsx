@@ -1,26 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
-import { UserProfileData, FriendStatus } from "../types/UserProfile";
-import Avatar from "react-avatar";
-import { Nav, NavItem, NavLink, Button } from "shards-react";
-import { UserMap } from "../components/profileTabs/userMap";
-import { UserProfile } from "../components/profileTabs/userProfile";
-import { useParams } from "react-router";
-import { useSelector } from "react-redux";
-import { RootStore } from "../redux/store";
+import { getUserProfile } from "../api/user.api";
 import { Loading } from "../components/Loading";
-import {
-  getUserProfile,
-  sendFriendRequest,
-  acceptFriendRequest,
-  declineFriendRequest,
-  removeFriendship,
-  cancelFriendRequest,
-} from "../api/user.api";
 import { FriendRequests } from "../components/profileTabs/friendRequests";
 import { Friends } from "../components/profileTabs/friends";
+import { ManageAccount } from "../components/profileTabs/ManageAccount";
+import { UserMap } from "../components/profileTabs/userMap";
 import { UserPostsList } from "../components/profileTabs/userPostsList";
+import { FriendshipButton } from "../components/users/FriendshipButton";
+import { ProfileTab, ProfileTabsNav } from "../components/users/ProfileTabsNav";
 import { useLoggedInUser } from "../hooks/useLoggedInUser";
+import { FriendStatus, UserProfileData } from "../types/UserProfile";
 
 const ProfileContainer = styled.div`
   display: flex;
@@ -28,34 +19,13 @@ const ProfileContainer = styled.div`
   align-items: center;
 `;
 
-interface NavLinkInfo {
-  name: string;
-}
-
-const NavLinks: Record<string, NavLinkInfo> = {
-  MAP: {
-    name: "MAP",
-  },
-  POSTS: {
-    name: "POSTS",
-  },
-  PROFILE: {
-    name: "PROFILE",
-  },
-  FRIEND_REQUESTS: {
-    name: "FRIEND REQUESTS",
-  },
-  FRIENDS: {
-    name: "FRIENDS",
-  },
-};
-
 const Profile: React.FC = () => {
+  const history = useHistory();
   const loggedInUser = useLoggedInUser();
 
-  let { id } = useParams();
+  let { id } = useParams<{ id?: string }>();
 
-  const [selectedTab, setSelectedTab] = useState<string>(NavLinks.MAP.name);
+  const [selectedTab, setSelectedTab] = useState<ProfileTab>("feed");
   const [
     userProfileData,
     setUserProfileData,
@@ -67,7 +37,7 @@ const Profile: React.FC = () => {
       try {
         const userProfile = await getUserProfile(id ? id : loggedInUser!.id);
         setUserProfileData(userProfile);
-        setSelectedTab(NavLinks.MAP.name);
+        setSelectedTab("feed");
       } catch (e) {
         console.log(e);
       }
@@ -75,11 +45,16 @@ const Profile: React.FC = () => {
       setLoadingProfile(false);
     }
 
-    tryGetProfile();
+    if (id === loggedInUser!.id) {
+      history.replace("/profile");
+    } else {
+      tryGetProfile();
+    }
   }, [id]);
 
-  const selectTab = (link: NavLinkInfo) => {
-    setSelectedTab(link.name);
+  const selectTab = (tab: ProfileTab) => {
+    console.log(tab);
+    setSelectedTab(tab);
   };
 
   if (loadingProfile) {
@@ -91,187 +66,61 @@ const Profile: React.FC = () => {
   }
 
   const isMe = userProfileData.friendStatus === FriendStatus.IS_ME;
-
-  const onAddFriendClick = async () => {
-    try {
-      const friendStatus = await sendFriendRequest(userProfileData.id);
-      if (friendStatus === FriendStatus.FRIENDS) {
-        alert("You are now friends!");
-      } else {
-        alert("Friend request sent!");
-      }
-
-      setUserProfileData((up) => {
-        return { ...up!, friendStatus };
-      });
-    } catch (e) {
-      console.log(e);
-      alert("Error!");
-    }
-  };
-
-  const onAcceptRequestClick = async () => {
-    try {
-      await acceptFriendRequest(userProfileData.id);
-      alert("Acccept!");
-      setUserProfileData((up) => {
-        return { ...up!, friendStatus: FriendStatus.FRIENDS };
-      });
-    } catch (e) {
-      console.log(e);
-      alert("Error!");
-    }
-  };
-
-  const onCancelRequestClick = async () => {
-    try {
-      await cancelFriendRequest(userProfileData.id);
-      alert("Cancel!");
-      setUserProfileData((up) => {
-        return { ...up!, friendStatus: FriendStatus.NONE };
-      });
-    } catch (e) {
-      console.log(e);
-      alert("Error!");
-    }
-  };
-
-  const onDeclineRequestClick = async () => {
-    try {
-      await declineFriendRequest(userProfileData.id);
-      alert("Declined!");
-      setUserProfileData((up) => {
-        return { ...up!, friendStatus: FriendStatus.NONE };
-      });
-    } catch (e) {
-      console.log(e);
-      alert("Error!");
-    }
-  };
-
-  const onRemoveFriendClick = async () => {
-    try {
-      await removeFriendship(userProfileData.id);
-      alert("Removed!");
-      setUserProfileData((up) => {
-        return { ...up!, friendStatus: FriendStatus.NONE };
-      });
-    } catch (e) {
-      console.log(e);
-      alert("Error!");
-    }
-  };
+  const areFriends = userProfileData.friendStatus === FriendStatus.FRIENDS;
 
   let selectedTabContent = null;
-  if (selectedTab === NavLinks.MAP.name) {
+  if (selectedTab === "map") {
     selectedTabContent = <UserMap userId={userProfileData.id} />;
-  } else if (selectedTab === NavLinks.POSTS.name) {
+  } else if (selectedTab === "feed") {
     selectedTabContent = <UserPostsList userId={userProfileData.id} />;
-  } else if (selectedTab === NavLinks.PROFILE.name) {
-    selectedTabContent = (
-      <UserProfile userProfileData={userProfileData} isMe={isMe} />
-    );
-  } else if (selectedTab === NavLinks.FRIEND_REQUESTS.name) {
-    selectedTabContent = <FriendRequests />;
-  } else if (selectedTab === NavLinks.FRIENDS.name) {
+  } else if (selectedTab === "friends") {
     selectedTabContent = <Friends />;
-  }
-
-  let friendButton = null;
-  if (userProfileData.friendStatus === FriendStatus.NONE) {
-    friendButton = (
-      <div className="d-flex">
-        <Button onClick={onAddFriendClick}>Add friend</Button>
-      </div>
-    );
-  } else if (userProfileData.friendStatus === FriendStatus.PENDING_FROM_ME) {
-    friendButton = (
-      <div className="d-flex">
-        <Button onClick={onCancelRequestClick}>Cancel friend request</Button>
-      </div>
-    );
-  } else if (userProfileData.friendStatus === FriendStatus.PENDING_FROM_THEM) {
-    friendButton = (
-      <div className="d-flex">
-        <Button onClick={onAcceptRequestClick}>Accept friend request</Button>
-        <Button onClick={onDeclineRequestClick}>Decline friend request</Button>
-      </div>
-    );
-  } else if (userProfileData.friendStatus === FriendStatus.FRIENDS) {
-    friendButton = (
-      <div className="d-flex">
-        <Button onClick={onRemoveFriendClick}>Remove friend</Button>
-      </div>
-    );
+  } else if (selectedTab === "friend-requests") {
+    selectedTabContent = <FriendRequests />;
+  } else if (selectedTab === "manage") {
+    selectedTabContent = <ManageAccount />;
   }
 
   return (
     <ProfileContainer>
-      <Avatar
-        round
-        maxInitials={3}
-        // src={userProfileData.profilePictureUrl}
-        name={userProfileData.name}
+      <img
+        style={{
+          border: "2px solid black",
+          width: "130px",
+          height: "130px",
+          borderRadius: "50%",
+        }}
+        src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
       />
 
-      <h4>
-        {userProfileData.name} {isMe ? "(Me)" : ""}
-      </h4>
+      <h3>{userProfileData.name}</h3>
 
-      {!isMe && <div className="mt-1 mb-3">{friendButton}</div>}
+      {!isMe && (
+        <div className="mt-2">
+          <FriendshipButton
+            userProfileData={userProfileData}
+            onChange={(friendStatus: FriendStatus) => {
+              setUserProfileData((up) => {
+                return { ...up!, friendStatus };
+              });
+            }}
+          />
+        </div>
+      )}
 
-      <Nav pills className="mb-2">
-        <NavItem>
-          <NavLink
-            className="c-pointer"
-            active={selectedTab === NavLinks.MAP.name}
-            onClick={() => selectTab(NavLinks.MAP)}
-          >
-            {NavLinks.MAP.name}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            className="c-pointer"
-            active={selectedTab === NavLinks.POSTS.name}
-            onClick={() => selectTab(NavLinks.POSTS)}
-          >
-            {NavLinks.POSTS.name}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            className="c-pointer"
-            active={selectedTab === NavLinks.PROFILE.name}
-            onClick={() => selectTab(NavLinks.PROFILE)}
-          >
-            {NavLinks.PROFILE.name}
-          </NavLink>
-        </NavItem>
-        {isMe && (
-          <>
-            <NavItem>
-              <NavLink
-                className="c-pointer"
-                active={selectedTab === NavLinks.FRIEND_REQUESTS.name}
-                onClick={() => selectTab(NavLinks.FRIEND_REQUESTS)}
-              >
-                {NavLinks.FRIEND_REQUESTS.name}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink
-                className="c-pointer"
-                active={selectedTab === NavLinks.FRIENDS.name}
-                onClick={() => selectTab(NavLinks.FRIENDS)}
-              >
-                {NavLinks.FRIENDS.name}
-              </NavLink>
-            </NavItem>
-          </>
-        )}
-      </Nav>
-      {selectedTabContent}
+      {(areFriends || isMe) && (
+        <div className="mt-3" style={{ width: "100%" }}>
+          <ProfileTabsNav
+            isMe={isMe}
+            onSelect={selectTab}
+            appearance="subtle"
+            active={selectedTab}
+          />
+          <div className="mt-5" style={{ width: "100%" }}>
+            {selectedTabContent}
+          </div>
+        </div>
+      )}
     </ProfileContainer>
   );
 };

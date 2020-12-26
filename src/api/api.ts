@@ -20,7 +20,7 @@ api.interceptors.request.use(
     let token = store.getState().auth.authData?.accessToken;
     let tokenNeedsRefreshing = true;
     if (token) {
-      const { exp } = jwtDecode(token);
+      const { exp } = jwtDecode(token) as any;
       console.log(exp);
       if (Date.now() < exp * 1000) {
         tokenNeedsRefreshing = false;

@@ -70,7 +70,7 @@ const ResetPassword: React.FC = () => {
     onAlertClose,
   } = useAlert<ResetPasswordAlertAction>(resetPasswordAlertReducer);
 
-  let { token } = useParams();
+  let { token } = useParams<{ token: string }>();
 
   useEffect(() => {
     async function tryVerifyToken() {

@@ -1,18 +1,19 @@
 import React from "react";
+import { Avatar, Badge, Icon } from "rsuite";
 import styled from "styled-components";
 import { Chatroom } from "../../types/ChatroomMessage";
 
 const ChatBubbleContainer = styled.div`
   border-radius: 50%;
-  border: 1px solid black;
+  border: 1px solid gray;
   position: fixed;
-  height: 100px;
-  width: auto;
-  bottom: 0;
-  right: 5vw;
-  height: 5vh
+  height: 80px;
+  width: 80px;
+  bottom: 1vh;
+  right: 3vw;
   background: white;
-  z-index: 100;
+  z-index: 99999;
+  cursor: pointer;
 `;
 
 interface ChatBubblesProps {
@@ -29,10 +30,19 @@ const ChatBubbles: React.FC<ChatBubblesProps> = ({
   return (
     <>
       {chatrooms.map((c) => (
-        <ChatBubbleContainer>
-          <div onClick={() => onOpen(c)}>{c.name}</div>
-          <div onClick={() => onClose(c)}>Close</div>
-          {c.isUnread && <div>UNREAD</div>}
+        <ChatBubbleContainer
+          onClick={() => {
+            onOpen(c);
+          }}
+        >
+          <Badge
+            style={{ width: "100%", height: "100%" }}
+            content={c.isUnread ? "NEW" : false}
+          >
+            <Avatar style={{ width: "100%", height: "100%" }} size="lg" circle>
+              <Icon icon="user" />
+            </Avatar>
+          </Badge>
         </ChatBubbleContainer>
       ))}
     </>

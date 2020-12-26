@@ -1,14 +1,14 @@
 // if userId defined - posts of user
 
-import { useState, useEffect } from "react";
-import { Post } from "../types/Post";
+import { useEffect, useState } from "react";
+import { getMyFeed, getPostsForUser } from "../api/post.api";
 import {
-  PaginationInfo,
   defaultPaginationInfo,
+  PaginationInfo,
   PostsListProps,
 } from "../components/post/PostsList";
-import { getPostsForUser, getMyFeed } from "../api/post.api";
 import { updatePostWithLikeOrUnlike } from "../pages/PostView";
+import { Post } from "../types/Post";
 
 // if userId undefined - feed
 export const usePostList = (
@@ -22,25 +22,25 @@ export const usePostList = (
     defaultPaginationInfo
   );
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (paginationInfoOverride?: PaginationInfo) => {
     try {
       setLoadingPosts(true);
 
+      let usedPaginationInfo = paginationInfoOverride || paginationInfo;
       let fPosts = null;
       if (userId) {
-        fPosts = await getPostsForUser(userId, paginationInfo.pageNumber);
+        fPosts = await getPostsForUser(userId, usedPaginationInfo.pageNumber);
       } else {
-        fPosts = await getMyFeed(paginationInfo.pageNumber);
+        fPosts = await getMyFeed(usedPaginationInfo.pageNumber);
       }
 
       setPosts([...posts, ...fPosts.data]);
       setPaginationInfo({
         moreAvailable: fPosts.moreAvailable,
-        pageNumber: paginationInfo.pageNumber + 1,
+        pageNumber: usedPaginationInfo.pageNumber + 1,
       });
     } catch (e) {
       console.log(e);
-      alert("Error");
     }
 
     setLoadingPosts(false);
@@ -48,8 +48,8 @@ export const usePostList = (
 
   useEffect(() => {
     setPaginationInfo(defaultPaginationInfo);
-    fetchPosts();
-  }, []);
+    fetchPosts(defaultPaginationInfo);
+  }, [userId]);
 
   const updatePostsOnLikeOrUnlike = async (post: Post, isLike: boolean) => {
     setPosts((pList) => {

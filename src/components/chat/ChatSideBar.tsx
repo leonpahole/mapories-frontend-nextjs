@@ -5,37 +5,26 @@ import ChatBubbles from "./ChatBubbles";
 import { Chatroom } from "../../types/ChatroomMessage";
 import { useSelector } from "react-redux";
 import { RootStore } from "../../redux/store";
-import { getMyChatrooms } from "../../api/chat.api";
-import { useLoggedInUser } from "../../hooks/useLoggedInUser";
 
 const MAX_CHAT_WINDOWS = 2;
 
-const ChatSideBar: React.FC = () => {
+interface ChatSideBarProps {
+  showChat: boolean;
+  onCloseChat(): void;
+}
+
+const ChatSideBar: React.FC<ChatSideBarProps> = ({ showChat, onCloseChat }) => {
   const [chatBubbles, setChatBubbles] = useState<Chatroom[]>([]);
   const [chatWindows, setChatWindows] = useState<Chatroom[]>([]);
 
-  const [chatrooms, setChatrooms] = useState<Chatroom[]>([]);
-  const [loadingChatrooms, setLoadingChatrooms] = useState<boolean>(true);
-
-  const loggedInUser = useLoggedInUser();
-
-  useEffect(() => {
-    async function fetchChatrooms() {
-      try {
-        const chatroomsF = await getMyChatrooms(loggedInUser!.id);
-        setChatrooms(chatroomsF);
-      } catch (e) {
-        console.log(e);
-      }
-
-      setLoadingChatrooms(false);
-    }
-
-    fetchChatrooms();
-  }, []);
-
   const lastMessageChatroom = useSelector(
-    (state: RootStore) => state.chats.lastMessageChatroom
+    (state: RootStore) => state.chats.mostRecentMessageChatroom
+  );
+
+  const chatrooms = useSelector((state: RootStore) => state.chats.chatrooms);
+
+  const loadingChatrooms = useSelector(
+    (state: RootStore) => state.chats.loading
   );
 
   useEffect(() => {
@@ -136,7 +125,7 @@ const ChatSideBar: React.FC = () => {
       {chatWindows.map((c, i) => (
         <ChatWindow
           index={i}
-          chatroom={c}
+          chatroomId={c.id}
           onMinimize={() => onChatWindowMinimize(c)}
           onClose={() => onChatWindowClose(c)}
         />
@@ -147,6 +136,8 @@ const ChatSideBar: React.FC = () => {
         onClose={onChatBubbleClose}
       />
       <ChatroomsList
+        showChat={showChat}
+        onClose={onCloseChat}
         chatrooms={chatrooms}
         loadingChatrooms={loadingChatrooms}
         onChatroomClick={onChatroomClick}

@@ -3,6 +3,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Formik } from "formik";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
   Button,
   ControlLabel,
   FormControl,
@@ -13,16 +14,15 @@ import {
 import { TypeAttributes } from "rsuite/lib/@types/common";
 import { FileType } from "rsuite/lib/Uploader";
 import * as Yup from "yup";
+import { convertPictureUri } from "../../api/api";
 import {
   CreateOrUpdatePostData,
   createPost,
-  updatePost,
   updatePicturesForPost,
+  updatePost,
 } from "../../api/post.api";
 import { useLoggedInUser } from "../../hooks/useLoggedInUser";
 import {
-  CenteredForm,
-  CenteredFormContainer,
   ModalForm,
   ModalFormContainer,
 } from "../../styledComponents/StyledForm";
@@ -33,7 +33,6 @@ import { MyDateInput } from "../form/MyDateInput";
 import { MyRatingInput } from "../form/MyRatingInput";
 import { MyTextInput } from "../form/MyTextInput";
 import MapLocationPicker from "../map/MapLocationPicker";
-import { convertPictureUri } from "../../api/api";
 
 dayjs.extend(customParseFormat);
 
@@ -75,7 +74,6 @@ export const CreateNewPostOrMaporyModal: React.FC<CreateNewPostOrMaporyModalProp
   const [pictureList, setPictureList] = useState<FileType[]>([]);
 
   useEffect(() => {
-    console.log(postToUpdate);
     if (show && postToUpdate) {
       setPostFormToPostToUpdate();
     } else if (!show && !postToUpdate) {
@@ -221,8 +219,10 @@ export const CreateNewPostOrMaporyModal: React.FC<CreateNewPostOrMaporyModalProp
             };
 
             if (postToUpdate) {
+              Alert.success("Post updated.", 5000);
               onUpdate && onUpdate(postWithImages);
             } else {
+              Alert.success("Post created.", 5000);
               onCreate && onCreate(postWithImages);
             }
 

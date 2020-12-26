@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Geocoder from "react-map-gl-geocoder";
 import "react-map-gl-geocoder/dist/mapbox-gl-geocoder.css";
-import { Button, IconButton, Icon } from "rsuite";
+import { Icon, IconButton } from "rsuite";
 import { MapLocation } from "../../types/MaporyMapItem";
 import { defaultViewport, Map } from "./Map";
 
@@ -130,7 +130,9 @@ const MapLocationPicker: React.FC<MapLocationPickerProps> = ({
         mapRef={mapRef}
         onDblClick={onMapDoubleClick}
         viewport={viewport}
-        markers={selectedLocation ? [selectedLocation] : []}
+        markers={
+          selectedLocation ? [{ location: selectedLocation, id: "1" }] : []
+        }
       >
         <Geocoder
           mapRef={mapRef}

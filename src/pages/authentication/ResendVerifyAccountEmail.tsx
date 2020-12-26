@@ -40,7 +40,7 @@ function resendVerifyAccountEmailAlertReducer(
 }
 
 const ResendVerifyAccountEmail: React.FC = () => {
-  let { email } = useParams();
+  let { email } = useParams<{ email?: string }>();
 
   const {
     alertOpen,

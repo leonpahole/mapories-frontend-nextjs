@@ -4,8 +4,7 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { Button } from "rsuite";
 import * as Yup from "yup";
-import { login, AuthenticationData } from "../../api/auth.api";
-import { MyCheckbox } from "../../components/form/MyCheckbox";
+import { AuthenticationData, login } from "../../api/auth.api";
 import { MyTextInput } from "../../components/form/MyTextInput";
 import { MyAlert, MyAlertState } from "../../components/MyAlert";
 import SocialLoginButtonRow from "../../components/social/SocialLoginButtonRow";
@@ -15,13 +14,17 @@ import {
   useAlert,
 } from "../../hooks/useAlert";
 import { loginAction } from "../../redux/auth/auth.actions";
+import { fetchChatrooms } from "../../redux/chat/chat.actions";
+import {
+  fetchNotifications,
+  fetchUnreadNotificationCount,
+} from "../../redux/notification/notification.actions";
 import {
   CenteredForm,
   CenteredFormBottomContainer,
   CenteredFormContainer,
   CenteredFormWrapper,
 } from "../../styledComponents/StyledForm";
-import { UserExcerpt } from "../../types/UserExcerpt";
 
 type LoginAlertAction =
   | { type: "INVALID_CREDENTIALS" }
@@ -73,6 +76,9 @@ const Login: React.FC = () => {
 
   const onLogin = (data: AuthenticationData) => {
     dispatch(loginAction(data));
+    dispatch(fetchNotifications(0));
+    dispatch(fetchUnreadNotificationCount());
+    dispatch(fetchChatrooms());
     history.push("/");
   };
 
@@ -156,8 +162,6 @@ const Login: React.FC = () => {
                 placeholder="Enter your password"
                 className="mb-1"
               />
-
-              <MyCheckbox name="rememberMe" label="Remember me?" />
 
               <small>
                 <Link to="/forgot-password">Forgot password?</Link>

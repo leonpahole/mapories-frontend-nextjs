@@ -13,7 +13,6 @@ import {
   useAlert,
 } from "../../hooks/useAlert";
 import { loginAction } from "../../redux/auth/auth.actions";
-import { UserExcerpt } from "../../types/UserExcerpt";
 import {
   CenteredFormWrapper,
   CenteredFormContainer,

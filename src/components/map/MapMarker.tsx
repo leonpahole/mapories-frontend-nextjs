@@ -28,7 +28,7 @@ export const MapMarker: React.FC<MapMarkerProps> = ({ location, zoom }) => {
         }}
         className="marker"
       >
-        <g fill-rule="nonzero">
+        <g fillRule="nonzero">
           <g transform="translate(3.0, 29.0)" fill="#000000">
             <ellipse
               opacity="0.04"

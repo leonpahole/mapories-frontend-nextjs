@@ -1,11 +1,8 @@
 import { Formik } from "formik";
 import React, { useEffect, useState } from "react";
-import Avatar from "react-avatar";
-import ImageUploader from "react-images-upload";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { Button } from "shards-react";
-import styled from "styled-components";
+import { Button } from "rsuite";
 import * as Yup from "yup";
 import { AuthenticationData, registerSocial } from "../../api/auth.api";
 import { uploadProfilePicture } from "../../api/user.api";
@@ -24,31 +21,6 @@ import {
   CenteredFormContainer,
   CenteredFormWrapper,
 } from "../../styledComponents/StyledForm";
-
-const ProfileImageContainer = styled.div`
-  position: relative;
-`;
-
-const ProfileImage = styled.img`
-  object-fit: cover;
-  width: 100px;
-  height: 100px;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-`;
-
-const DeleteImage = styled.div`
-  position: absolute;
-  top: -9px;
-  right: -9px;
-  color: #fff;
-  border-radius: 50%;
-  cursor: pointer;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
 
 type CreateSocialAccountAlertAction =
   | { type: "MISSING_DATA" }
@@ -137,40 +109,6 @@ const CreateSocialAccount: React.FC = () => {
             information below and click 'Create an account' when you are ready.
           </p>
 
-          <ProfileImageContainer>
-            {uploadedProfilePicture && (
-              <DeleteImage
-                onClick={onDeleteProfilePicture}
-                className="bg-danger"
-              >
-                X
-              </DeleteImage>
-            )}
-            {uploadedProfilePicture ? (
-              <ProfileImage src={uploadedProfilePicture} />
-            ) : (
-              <Avatar
-                maxInitials={3}
-                name={
-                  userName
-                    ? userName
-                    : createSocialAccountData!.providerData.name
-                }
-              />
-            )}
-          </ProfileImageContainer>
-          <ImageUploader
-            className="file-uploader"
-            buttonClassName="btn btn-secondary"
-            buttonText="Upload different profile image"
-            onChange={onDrop}
-            imgExtension={[".jpg", ".png"]}
-            maxFileSize={2097152}
-            label={"Max file size: 2mb, accepted: jpg|png"}
-            singleImage={true}
-            withIcon={false}
-          />
-
           <Formik
             validateOnBlur={false}
             validateOnChange={false}
@@ -203,15 +141,6 @@ const CreateSocialAccount: React.FC = () => {
                   createSocialAccountData!.accessTokenSecret
                 );
 
-                if (uploadedProfilePictureFile) {
-                  try {
-                    await uploadProfilePicture(uploadedProfilePictureFile);
-                  } catch (e) {
-                    console.log("Upload error");
-                    console.log(e);
-                  }
-                }
-
                 onLogin(data);
                 resetForm();
               } catch (e) {
@@ -240,7 +169,11 @@ const CreateSocialAccount: React.FC = () => {
                 />
 
                 <CenteredFormBottomContainer className="mt-3">
-                  <Button disabled={isSubmitting} type="submit">
+                  <Button
+                    appearance="primary"
+                    disabled={isSubmitting}
+                    type="submit"
+                  >
                     Create an account!
                   </Button>
                 </CenteredFormBottomContainer>
@@ -253,10 +186,12 @@ const CreateSocialAccount: React.FC = () => {
   }
 
   return (
-    <CenteredFormContainer>
-      {!isDataPresent && alert}
-      {form}
-    </CenteredFormContainer>
+    <CenteredFormWrapper>
+      <CenteredFormContainer>
+        {!isDataPresent && alert}
+        {form}
+      </CenteredFormContainer>
+    </CenteredFormWrapper>
   );
 };
 

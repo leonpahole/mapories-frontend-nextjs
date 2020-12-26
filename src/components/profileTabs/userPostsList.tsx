@@ -1,6 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Loading } from "../Loading";
+import { useLoggedInUser } from "../../hooks/useLoggedInUser";
+import { usePostList } from "../../hooks/usePostList";
+import { CreateNewPostOrMaporyInput } from "../post/CreateNewPostOrMaporyInput";
 import { PostsList } from "../post/PostsList";
 
 interface UserPostsListProps {
@@ -8,23 +9,19 @@ interface UserPostsListProps {
 }
 
 export const UserPostsList: React.FC<UserPostsListProps> = ({ userId }) => {
-  if (!userId) {
-    return <Loading />;
-  }
+  const { addPost, ...postListData } = usePostList(userId);
+
+  const loggedInUser = useLoggedInUser();
+  const isMe = loggedInUser!.id === userId;
 
   return (
     <div>
-      <Link to="/create-or-update-post">
-        <small className="text-secondary c-pointer block mt-3 mb-3">
-          Create a post
-        </small>
-      </Link>
-      <Link to="/create-or-update-mapory">
-        <small className="text-secondary c-pointer block mt-3 mb-3">
-          Create a mapory
-        </small>
-      </Link>
-      {/* <PostsList userId={userId} /> */}
+      {isMe && (
+        <div className="mb-3">
+          <CreateNewPostOrMaporyInput onCreatePost={addPost} />
+        </div>
+      )}
+      <PostsList {...postListData} />
     </div>
   );
 };

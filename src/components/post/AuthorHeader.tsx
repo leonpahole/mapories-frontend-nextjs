@@ -14,8 +14,9 @@ interface AuthorHeaderProps {
   linkTo: string;
   createdAt: Date;
   isMine: boolean;
-  onEdit(): void;
-  onDelete(): void;
+  showEditAndDelete?: boolean;
+  onEdit?(): void;
+  onDelete?(): void;
 }
 
 export const AuthorHeader: React.FC<AuthorHeaderProps> = ({
@@ -24,13 +25,14 @@ export const AuthorHeader: React.FC<AuthorHeaderProps> = ({
   linkTo,
   isMine,
   createdAt,
+  showEditAndDelete = true,
   onEdit,
   onDelete,
 }) => {
   const fromNow = dayjs(createdAt).fromNow();
   let placeText: string = "";
   if (post && post.mapory) {
-    placeText = `was at ${post.mapory.placeName} ${dayjs(
+    placeText = ` was at ${post.mapory.placeName} ${dayjs(
       post.mapory.visitDate
     ).fromNow()}`;
   }
@@ -45,7 +47,7 @@ export const AuthorHeader: React.FC<AuthorHeaderProps> = ({
           <p>
             <Link to={`/profile/${author.id}`} className="no-style-link">
               <b>{author.name}</b>
-            </Link>{" "}
+            </Link>
             {placeText}
           </p>
           <Link to={linkTo} className="no-style-link">
@@ -53,12 +55,15 @@ export const AuthorHeader: React.FC<AuthorHeaderProps> = ({
           </Link>
         </div>
       </div>
-      {isMine && (
+      {isMine && showEditAndDelete && (
         <Nav>
-          <Nav.Item icon={<Icon icon="edit" />} onClick={() => onEdit()} />
+          <Nav.Item
+            icon={<Icon icon="edit" />}
+            onClick={() => onEdit && onEdit()}
+          />
           <Nav.Item
             icon={<Icon style={{ color: "red" }} icon="trash" />}
-            onClick={() => onDelete()}
+            onClick={() => onDelete && onDelete()}
           />
         </Nav>
       )}

@@ -20,10 +20,12 @@ const authReducer = (
   switch (action.type) {
     case LOGIN_SUCCESS:
       return {
+        ...state,
         authData: action.payload,
       };
     case LOGOUT_SUCCESS:
       return {
+        ...state,
         authData: undefined,
       };
     default:

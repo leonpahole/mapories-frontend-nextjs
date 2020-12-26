@@ -1,27 +1,22 @@
-import React, { useCallback, useState } from "react";
-import { FlyToInterpolator } from "react-map-gl";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { Carousel, Icon, Nav, Panel, Rate } from "rsuite";
-import { Button, Card, CardBody, CardTitle } from "shards-react";
+import React, { useState } from "react";
+import { Alert, Carousel, Icon, Nav, Panel, Rate } from "rsuite";
 import styled from "styled-components";
 import { deletePost, likePost, unlikePost } from "../../api/post.api";
-import { Map } from "../map/Map";
-import { RootStore } from "../../redux/store";
-import { Post } from "../../types/Post";
-import { AuthorHeader } from "./AuthorHeader";
-import { PostComments } from "./PostComments";
 import { useLoggedInUser } from "../../hooks/useLoggedInUser";
-import { CreateNewPostOrMaporyInput } from "./CreateNewPostOrMaporyInput";
+import { Post } from "../../types/Post";
+import { ConfirmDialog } from "../ConfirmDialog";
+import { Map } from "../map/Map";
+import { AuthorHeader } from "./AuthorHeader";
+import { CommentsList } from "./CommentsList";
 import { CreateNewPostOrMaporyModal } from "./CreateNewPostOrMaporyModal";
 
-const CarouselContainer = styled.div`
+export const CarouselContainer = styled.div`
   width: 100%;
   max-width: 400px;
   height: 300px;
 `;
 
-const CarouselImage = styled.img`
+export const CarouselImage = styled.img`
   object-fit: cover;
 `;
 
@@ -33,29 +28,22 @@ const MapContainer = styled.div`
 
 interface PostCardProps {
   postInfo: Post;
-  showAuthor?: boolean;
-  showSeeDetails?: boolean;
   onLikeOrUnlike(isLike: boolean): void;
-  showMap?: boolean;
-  showComments?: boolean;
   onUpdate(p: Post): void;
   onDelete(): void;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
   postInfo,
-  showAuthor = false,
-  showSeeDetails = false,
   onLikeOrUnlike,
   onUpdate,
   onDelete,
-  showMap = false,
-  showComments = false,
 }) => {
   const { post, author } = postInfo;
 
   const [displayComments, setDisplayComments] = useState<boolean>(false);
   const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
   const loggedInUser = useLoggedInUser();
 
@@ -69,7 +57,8 @@ export const PostCard: React.FC<PostCardProps> = ({
 
       onLikeOrUnlike(!post.likes.myLike);
     } catch (e) {
-      alert("Error!");
+      Alert.error("Try again.");
+      console.log(e);
     }
   };
 
@@ -93,6 +82,33 @@ export const PostCard: React.FC<PostCardProps> = ({
     />
   );
 
+  const onDeletePost = async () => {
+    try {
+      await deletePost(post.id);
+      Alert.success("Post deleted.", 5000);
+      setShowDeleteModal(false);
+      onDelete();
+    } catch (e) {
+      console.log("Delete post error");
+      console.log(e);
+      Alert.error("Error while deleting the post.", 0);
+    }
+  };
+
+  const deletePostModal = (
+    <ConfirmDialog
+      show={showDeleteModal}
+      onClose={() => setShowDeleteModal(false)}
+      onConfirm={onDeletePost}
+      header={"Delete post?"}
+      text={
+        "Really delete post? All comments and pictures will be deleted (for ever)."
+      }
+      confirmButtonText={"Delete"}
+      confirmButtonColor={"red"}
+    />
+  );
+
   return (
     <>
       <div className="mb-4">
@@ -108,7 +124,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 setShowUpdateModal(true);
               }}
               onDelete={() => {
-                console.log();
+                setShowDeleteModal(true);
               }}
             />
           }
@@ -132,6 +148,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                   >
                     {post.images.map((p) => (
                       <CarouselImage
+                        key={p.url}
                         src={`${process.env.REACT_APP_API_URL}/${p.url}`}
                         height="300"
                       />
@@ -141,7 +158,10 @@ export const PostCard: React.FC<PostCardProps> = ({
               )}
               {isMapory && (
                 <MapContainer className="ml-3">
-                  <Map markers={[post.mapory!.location]} height="300px" />
+                  <Map
+                    markers={[{ location: post.mapory!.location, id: post.id }]}
+                    height="300px"
+                  />
                 </MapContainer>
               )}
             </div>
@@ -169,12 +189,13 @@ export const PostCard: React.FC<PostCardProps> = ({
           {displayComments && (
             <>
               <hr />
-              <PostComments postId={post.id} />
+              <CommentsList postId={post.id} />
             </>
           )}
         </Panel>
       </div>
       {updatePostModal}
+      {deletePostModal}
     </>
   );
 };

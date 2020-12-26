@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardBody, CardTitle } from "shards-react";
-import { getFriendRequests, getFriends } from "../../api/user.api";
-import { FriendRequest } from "../../types/FriendRequest";
-import { Loading } from "../Loading";
+import { getFriends } from "../../api/user.api";
 import { UserExcerpt } from "../../types/UserExcerpt";
+import { Loading } from "../Loading";
+import { UserList } from "../users/UserList";
 
 export const Friends: React.FC<{}> = () => {
   const [friends, setFriends] = useState<UserExcerpt[]>([]);
@@ -29,28 +27,14 @@ export const Friends: React.FC<{}> = () => {
     return <Loading />;
   }
 
-  let friendList = null;
-
   if (friends.length === 0) {
-    friendList = <div>No friends yet.</div>;
-  } else {
-    friendList = (
-      <div>
-        {friends.map((f) => (
-          <Card className="mb-3">
-            <CardBody>
-              <CardTitle>{f.name}</CardTitle>
-              <Link to={`/profile/${f.id}`}>
-                <small className="text-secondary c-pointer block mt-3 mb-3">
-                  See profile
-                </small>
-              </Link>
-            </CardBody>
-          </Card>
-        ))}
-      </div>
-    );
+    return <p className="d-flex justify-content-center">No friends yet.</p>;
   }
 
-  return <div>{friendList}</div>;
+  return (
+    <div>
+      <h3 className="mb-2">Friends</h3>
+      <UserList users={friends} />
+    </div>
+  );
 };

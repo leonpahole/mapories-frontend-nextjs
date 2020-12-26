@@ -1,4 +1,3 @@
-import { UserExcerpt } from "../../types/UserExcerpt";
 import { AuthenticationData } from "../../api/auth.api";
 
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";

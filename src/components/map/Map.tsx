@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import MapGL, { FlyToInterpolator, PointerEvent } from "react-map-gl";
 import { MapMarker } from "./MapMarker";
-import { MapLocation } from "../../types/MaporyMapItem";
+import { MapLocation, MarkerData } from "../../types/MaporyMapItem";
 
 const MAP_STYLE = "mapbox://styles/leonpahole/ckg8dkn8k6fmt1as4ausxm0pr";
 
@@ -22,7 +22,8 @@ export const defaultViewport = {
 };
 
 interface MapProps {
-  markers?: MapLocation[];
+  markers?: MarkerData[];
+  onMarkerClick?(id: string): void;
   className?: string;
   width?: string;
   height: string;
@@ -33,6 +34,7 @@ interface MapProps {
 
 export const Map: React.FC<MapProps> = ({
   markers = [],
+  onMarkerClick,
   className,
   width,
   height,
@@ -74,7 +76,9 @@ export const Map: React.FC<MapProps> = ({
       onDblClick={onDoubleClick}
     >
       {markers.map((m) => (
-        <MapMarker location={m} zoom={viewport.zoom} />
+        <div onClick={() => onMarkerClick && onMarkerClick(m.id)} key={m.id}>
+          <MapMarker location={m.location} zoom={viewport.zoom} />
+        </div>
       ))}
       {children}
     </MapGL>

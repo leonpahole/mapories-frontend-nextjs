@@ -1,30 +1,35 @@
-import NavBar from "./components/NavBar";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useThemeSwitcher } from "react-css-theme-switcher";
+import { useDispatch } from "react-redux";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled from "styled-components";
+import { refreshToken } from "./api/auth.api";
+import ChatSideBar from "./components/chat/ChatSideBar";
+import { Loading } from "./components/Loading";
+import TopNavBar from "./components/navigation/TopNavBar";
+import CreateSocialAccount from "./pages/authentication/CreateSocialAccount";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
-import React, { useState, useEffect } from "react";
-import { Loading } from "./components/Loading";
-import { useDispatch } from "react-redux";
-import { loginAction } from "./redux/auth/auth.actions";
-import { profile } from "./api/user.api";
-import VerifyEmail from "./pages/authentication/VerifyEmail";
 import ResendVerifyAccountEmail from "./pages/authentication/ResendVerifyAccountEmail";
-import ForgotPassword from "./pages/authentication/ForgotPassword";
 import ResetPassword from "./pages/authentication/ResetPassword";
-import CreateSocialAccount from "./pages/authentication/CreateSocialAccount";
-import Profile from "./pages/Profile";
-import { useIsLoggedIn } from "./utils/useAlreadyLoggedInGuard";
-// import CreateOrUpdateMapory from "./pages/CreateOrUpdateMapory";
-import { SearchResults } from "./pages/SearchResults";
+import VerifyEmail from "./pages/authentication/VerifyEmail";
+import Feed from "./pages/Feed";
+import { FriendMap } from "./pages/FriendMap";
+import Home from "./pages/Home";
+import { NotificationCenter } from "./pages/NotificationCenter";
 // import CreateOrUpdatePost from "./pages/CreateOrUpdatePost";
 import { PostView } from "./pages/PostView";
-import Feed from "./pages/Feed";
-import ChatSideBar from "./components/chat/ChatSideBar";
-import TopNavBar from "./components/navigation/TopNavBar";
-import { useThemeSwitcher } from "react-css-theme-switcher";
-import Home from "./pages/Home";
-import { refreshToken } from "./api/auth.api";
+import Profile from "./pages/Profile";
+// import CreateOrUpdateMapory from "./pages/CreateOrUpdateMapory";
+import { SearchResults } from "./pages/SearchResults";
+import { loginAction } from "./redux/auth/auth.actions";
+import { fetchChatrooms } from "./redux/chat/chat.actions";
+import {
+  fetchNotifications,
+  fetchUnreadNotificationCount,
+} from "./redux/notification/notification.actions";
+import { useIsLoggedIn } from "./utils/useAlreadyLoggedInGuard";
 
 const BodyContainer = styled.div`
   padding: 40px 20px;
@@ -37,14 +42,21 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [isLoggedIn] = useIsLoggedIn();
 
-  useEffect(() => {}, []);
+  const [showChat, setShowChat] = useState<boolean>(false);
 
   useEffect(() => {
     async function tryRefreshTokenAndGetProfile() {
       try {
         const authData = await refreshToken();
         if (authData) {
+          console.log(authData);
+          console.log("WTF");
           dispatch(loginAction(authData));
+
+          dispatch(fetchNotifications(0));
+          dispatch(fetchUnreadNotificationCount());
+
+          dispatch(fetchChatrooms());
         }
       } catch (e) {
         console.log(e);
@@ -68,15 +80,15 @@ const App: React.FC = () => {
         <Route path="/profile/:id?">
           <Profile />
         </Route>
-        {/* <Route path="/create-or-update-mapory/:id?">
-          <CreateOrUpdateMapory />
-        </Route> */}
         <Route path="/search">
           <SearchResults />
         </Route>
-        {/* <Route path="/create-or-update-post/:id?">
-          <CreateOrUpdatePost />
-        </Route> */}
+        <Route path="/notification-center">
+          <NotificationCenter />
+        </Route>
+        <Route path="/map">
+          <FriendMap />
+        </Route>
         <Route path="/post/:id">
           <PostView />
         </Route>
@@ -119,9 +131,13 @@ const App: React.FC = () => {
   return (
     <>
       <Router>
-        <TopNavBar />
-        <NavBar />
-        {/* isLoggedIn && <ChatSideBar /> */}
+        <TopNavBar onChatToggle={() => setShowChat(!showChat)} />
+        {isLoggedIn && (
+          <ChatSideBar
+            showChat={showChat}
+            onCloseChat={() => setShowChat(false)}
+          />
+        )}
         <BodyContainer>
           <Switch>{routes}</Switch>
         </BodyContainer>

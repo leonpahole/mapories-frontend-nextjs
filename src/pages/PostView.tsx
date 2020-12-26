@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { FlyToInterpolator } from "react-map-gl";
+import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { getPostById } from "../api/post.api";
 import { Loading } from "../components/Loading";
@@ -19,17 +18,17 @@ export const updatePostWithLikeOrUnlike = (p: Post, isLike: boolean): Post => {
   };
 };
 
-export const PostView: React.FC<{}> = ({}) => {
+export const PostView: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [loadingPost, setLoadingPost] = useState<boolean>(true);
 
-  let { id } = useParams();
+  let { id } = useParams<{ id?: string }>();
   const history = useHistory();
 
   useEffect(() => {
     async function fetchPost() {
       try {
-        const fPost = await getPostById(id);
+        const fPost = await getPostById(id!);
         setPost(fPost);
       } catch (e) {
         console.log(e);
@@ -38,25 +37,12 @@ export const PostView: React.FC<{}> = ({}) => {
       setLoadingPost(false);
     }
 
-    fetchPost();
+    if (id) {
+      fetchPost();
+    } else {
+      setLoadingPost(false);
+    }
   }, [id]);
-
-  const [viewport, setViewport] = useState({
-    latitude: 45.66,
-    longitude: -33.9,
-    zoom: 1,
-    transitionDuration: 1000,
-    transitionInterpolator: new FlyToInterpolator(),
-  });
-
-  const changeViewPort = (latitude: number, longitude: number) => {
-    setViewport({ ...viewport, zoom: 6, latitude, longitude });
-  };
-
-  const handleViewportChange = useCallback(
-    (newViewport) => setViewport(newViewport),
-    []
-  );
 
   const modifyPostWhenLikeOrUnlike = (isLike: boolean) => {
     setPost((p) => updatePostWithLikeOrUnlike(p!, isLike));
@@ -77,9 +63,6 @@ export const PostView: React.FC<{}> = ({}) => {
   return (
     <PostCard
       postInfo={post}
-      showMap={true}
-      showAuthor={true}
-      showComments={true}
       onLikeOrUnlike={modifyPostWhenLikeOrUnlike}
       onDelete={onPostDeleted}
       onUpdate={() => {}}

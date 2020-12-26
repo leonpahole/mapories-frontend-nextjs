@@ -8,7 +8,7 @@ import { Button } from "rsuite";
 const VerifyEmail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [verifiedUser, setVerifiedUser] = useState<UserExcerpt | null>(null);
-  let { token } = useParams();
+  let { token } = useParams<{ token: string }>();
 
   useEffect(() => {
     async function tryVerifyEmail() {
