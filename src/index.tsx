@@ -4,12 +4,11 @@ import "./index.css";
 import App from "./App";
 import { Provider } from "react-redux";
 import store from "./redux/store";
-import SnackbarProvider from "react-simple-snackbar";
 import { ThemeSwitcherProvider } from "react-css-theme-switcher";
 
 import "./util.css";
+import "./bootstrap.min.css";
 import "mapbox-gl/dist/mapbox-gl.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 import ChatSocketProvider from "./socket/ChatSocket";
 import NotificationSocketProvider from "./socket/NotificationSocket";
@@ -23,17 +22,15 @@ const themes = {
 
 ReactDOM.render(
   <ThemeSwitcherProvider defaultTheme="light" themeMap={themes}>
-    <SnackbarProvider>
-      <Provider store={store}>
-        <ChatSocketProvider>
-          <NotificationSocketProvider>
-            <React.StrictMode>
-              <App />
-            </React.StrictMode>
-          </NotificationSocketProvider>
-        </ChatSocketProvider>
-      </Provider>
-    </SnackbarProvider>
+    <Provider store={store}>
+      <ChatSocketProvider>
+        <NotificationSocketProvider>
+          <React.StrictMode>
+            <App />
+          </React.StrictMode>
+        </NotificationSocketProvider>
+      </ChatSocketProvider>
+    </Provider>
   </ThemeSwitcherProvider>,
   document.getElementById("root")
 );
