@@ -49,8 +49,6 @@ const App: React.FC = () => {
       try {
         const authData = await refreshToken();
         if (authData) {
-          console.log(authData);
-          console.log("WTF");
           dispatch(loginAction(authData));
 
           dispatch(fetchNotifications(0));
