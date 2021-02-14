@@ -96,7 +96,7 @@ export const NewPostCommentInput: React.FC<NewPostCommentInputProps> = ({
                 <Icon icon="user" />
               </Avatar>
             )}
-            <div className="flex-grow-1">
+            <div style={{ flex: 1 }}>
               <MyTextInput
                 name="content"
                 placeholder={
