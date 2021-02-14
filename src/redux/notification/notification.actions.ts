@@ -11,7 +11,10 @@ import {
   getUnreadNotificationsCount,
 } from "../../api/notification.api";
 import { AddNotificatonsData, Notification } from "../../types/Notification";
-import { PaginatedResponse } from "../../types/PaginatedResponse";
+import {
+  CursorPaginatedResponse,
+  PaginatedResponse,
+} from "../../types/PaginatedResponse";
 
 export const fetchUnreadNotificationCount = () => {
   return async function (dispatch: any) {
@@ -24,17 +27,21 @@ export const fetchUnreadNotificationCount = () => {
   };
 };
 
-export const fetchNotifications = (skip: number) => {
+export const fetchNotifications = (cursor?: number | null) => {
+  if (cursor === null) {
+    return;
+  }
+
   return async function (dispatch: any) {
     dispatch(startLoadingNotifications());
 
-    let notifications: PaginatedResponse<Notification> = {
-      moreAvailable: false,
+    let notifications: CursorPaginatedResponse<Notification> = {
+      cursor: null,
       data: [],
     };
 
     try {
-      notifications = await getNotifications(skip / 10);
+      notifications = await getNotifications(cursor);
     } catch (e) {
       console.log(e);
     }
@@ -42,7 +49,7 @@ export const fetchNotifications = (skip: number) => {
     dispatch(
       addNotifications({
         notifications: notifications.data,
-        moreAvailable: notifications.moreAvailable,
+        cursor: notifications.cursor,
       })
     );
   };

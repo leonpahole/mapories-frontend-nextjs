@@ -1,5 +1,8 @@
 import { Notification } from "../types/Notification";
-import { PaginatedResponse } from "../types/PaginatedResponse";
+import {
+  CursorPaginatedResponse,
+  PaginatedResponse,
+} from "../types/PaginatedResponse";
 import { api } from "./api";
 
 export const getUnreadNotificationsCount = async (): Promise<{
@@ -12,11 +15,11 @@ export const getUnreadNotificationsCount = async (): Promise<{
 };
 
 export const getNotifications = async (
-  pageNumber: number,
+  cursor?: number,
   pageSize: number = 10
-): Promise<PaginatedResponse<Notification>> => {
-  const res = await api.get<PaginatedResponse<Notification>>(
-    `notification?pageNum=${pageNumber}&pageSize=${pageSize}`
+): Promise<CursorPaginatedResponse<Notification>> => {
+  const res = await api.get<CursorPaginatedResponse<Notification>>(
+    `notification?pageSize=${pageSize}${cursor ? `&cursor=${cursor}` : ""}`
   );
   return res.data;
 };

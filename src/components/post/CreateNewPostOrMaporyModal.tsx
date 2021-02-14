@@ -14,7 +14,6 @@ import {
 import { TypeAttributes } from "rsuite/lib/@types/common";
 import { FileType } from "rsuite/lib/Uploader";
 import * as Yup from "yup";
-import { convertPictureUri } from "../../api/api";
 import {
   CreateOrUpdatePostData,
   createPost,
@@ -108,7 +107,7 @@ export const CreateNewPostOrMaporyModal: React.FC<CreateNewPostOrMaporyModalProp
     setPictureList(
       postToUpdate.images.map((p, i) => ({
         name: p.url,
-        url: convertPictureUri(p.url),
+        url: p.url,
         fileKey: i,
       }))
     );

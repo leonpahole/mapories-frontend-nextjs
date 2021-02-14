@@ -139,9 +139,11 @@ export const NotificationDisplay: React.FC<NotificationDisplayProps> = ({
           header={
             <div className="d-flex justify-content-between align-items-start">
               <div className="d-flex mr-2">
-                <Avatar circle>
-                  <Icon icon="user" />
-                </Avatar>
+                <div>
+                  <Avatar circle>
+                    <Icon icon="user" />
+                  </Avatar>
+                </div>
                 <div className="ml-2">
                   <p className="mb-1">
                     <b className="c-pointer" onClick={onAuthorLinkClick}>

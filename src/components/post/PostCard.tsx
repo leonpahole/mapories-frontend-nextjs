@@ -149,7 +149,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                     {post.images.map((p) => (
                       <CarouselImage
                         key={p.url}
-                        src={`${process.env.REACT_APP_API_URL}/${p.url}`}
+                        src={`${p.url}`}
                         height="300"
                       />
                     ))}

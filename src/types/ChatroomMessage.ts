@@ -23,7 +23,7 @@ export interface Chatroom {
   participants: ChatroomParticipant[];
   messages: {
     loading: boolean;
-    moreAvailable: boolean;
+    cursor?: number | null;
     data: ChatroomMessage[];
   };
 }
@@ -43,7 +43,7 @@ export const convertIChatroomToChatroom = (iChatroom: IChatroom): Chatroom => {
     participants: iChatroom.participants,
     messages: {
       loading: false,
-      moreAvailable: false,
+      cursor: undefined,
       data: [],
     },
   };
@@ -65,7 +65,7 @@ export type UpdateChatLogMessage = {
 export type AddMessagesToChatroomPayload = {
   chatroomId: string;
   messages: ChatroomMessage[];
-  moreAvailable: boolean;
+  cursor: number | null | undefined;
 };
 
 export type BecomeOnlineMessage = {

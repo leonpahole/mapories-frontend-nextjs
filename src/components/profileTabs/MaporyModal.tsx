@@ -75,10 +75,7 @@ export const MaporyModal: React.FC<MaporyModal> = ({
                   style={{ height: "300px" }}
                 >
                   {mapory.post.images.map((p) => (
-                    <CarouselImage
-                      src={`${process.env.REACT_APP_API_URL}/${p.url}`}
-                      height="300"
-                    />
+                    <CarouselImage src={`${p.url}`} height="300" />
                   ))}
                 </Carousel>
               </CarouselContainer>

@@ -84,7 +84,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       return;
     }
 
-    dispatch(fetchChatroomMessages(chatroom.id, chatroom.messages.data.length));
+    dispatch(fetchChatroomMessages(chatroom.id, chatroom.messages.cursor));
   };
 
   useEffect(() => {
@@ -152,7 +152,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
       <ChatBodyContainer>
         <ChatMessagesContainer id={`chat-list-div-${chatroom.id}`}>
-          {chatroom.messages.moreAvailable && (
+          {chatroom.messages.cursor !== null && (
             <div className="c-pointer mb-2" onClick={() => fetchMessages()}>
               <b>Load more</b>
             </div>
@@ -185,7 +185,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             onKeyDown={onMessageInputKeyDown}
             onChange={(v: string) => setChatMessage(v)}
           />
-          <IconButton appearance="primary" icon={<Icon icon="send-o" />} />
+          <IconButton
+            appearance="primary"
+            icon={<Icon icon="send-o" />}
+            onClick={sendMessage}
+          />
         </InputButtonContainer>
       </ChatBodyContainer>
     </ChatWindowContainer>

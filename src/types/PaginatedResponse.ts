@@ -7,3 +7,8 @@ export class PaginatedResponse<T> {
     this.moreAvailable = more;
   }
 }
+
+export interface CursorPaginatedResponse<T> {
+  data: T[];
+  cursor: number | null;
+}

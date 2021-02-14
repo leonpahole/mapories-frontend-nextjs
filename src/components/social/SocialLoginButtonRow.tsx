@@ -21,6 +21,8 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { createSocialAccountAction } from "../../redux/createSocialAccount/createSocialAccount.actions";
 import { Alert } from "rsuite";
+import { apiUrl } from "../../api/api";
+import { errorMonitor } from "events";
 
 interface TwitterAccessTokenResponse {
   oauth_token: string;
@@ -121,6 +123,9 @@ const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({
 
   const responseGoogleFailure = (error: any) => {
     console.log(error);
+    if (error.error === "idpiframe_initialization_failed") {
+      return;
+    }
     Alert.error("Failed to login using Google!");
   };
 
@@ -203,10 +208,10 @@ const SocialLoginButtonRow: React.FC<SocialLoginButtonRowProps> = ({
       />
 
       <TwitterLogin
-        loginUrl="http://localhost:4000/auth/twitter/access_token"
+        loginUrl={apiUrl + "/auth/twitter/access_token"}
         onSuccess={responseTwitter}
         onFailure={responseTwitterFailure}
-        requestTokenUrl="http://localhost:4000/auth/twitter/request_token"
+        requestTokenUrl={apiUrl + "/auth/twitter/request_token"}
         style={{
           padding: "unset",
           background: "transparent",

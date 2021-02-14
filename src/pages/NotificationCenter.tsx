@@ -11,14 +11,12 @@ export const NotificationCenter: React.FC = () => {
   const notifications = useSelector(
     (r: RootStore) => r.notifications.notifications
   );
-  const moreAvailable = useSelector(
-    (r: RootStore) => r.notifications.moreAvailable
-  );
+  const cursor = useSelector((r: RootStore) => r.notifications.cursor);
 
   const dispatch = useDispatch();
 
   const fetchNotificationsF = async () => {
-    dispatch(fetchNotifications(notifications.length));
+    dispatch(fetchNotifications(cursor));
   };
 
   useEffect(() => {
@@ -27,10 +25,10 @@ export const NotificationCenter: React.FC = () => {
     return () => {
       document.removeEventListener("scroll", trackScrolling);
     };
-  }, [loading, moreAvailable]);
+  }, [loading, cursor]);
 
   const trackScrolling = () => {
-    if (loading || !moreAvailable) {
+    if (loading || cursor === null) {
       return;
     }
 

@@ -1,4 +1,4 @@
-import React, { createContext } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import io from "socket.io-client";
 import { useLoggedInUserData } from "../hooks/useLoggedInUser";
@@ -18,7 +18,8 @@ import {
 const wsUrl = process.env.REACT_APP_WS_URL as string;
 
 type ChatSocketContext = {
-  socket: SocketIOClient.Socket;
+  socket: SocketIOClient.Socket | null;
+  socketConnected: boolean;
   sendMessage: (chatroomId: string, message: string) => void;
   sendChatroomRead: (chatroomId: string) => void;
   sendChatroomTyping: (chatroomId: string, typing: boolean) => void;
@@ -28,56 +29,47 @@ const ChatSocketContext = createContext<ChatSocketContext | null>(null);
 
 export { ChatSocketContext };
 
+let socket: SocketIOClient.Socket | null = null;
+
 export default ({ children }: any) => {
-  let socket: SocketIOClient.Socket | null = null;
   let ws: ChatSocketContext | null = null;
 
   const loggedInUserData = useLoggedInUserData();
   const dispatch = useDispatch();
+  const [socketConnected, setSocketConnected] = useState<boolean>(false);
 
-  const sendMessage = (chatroomId: string, message: string) => {
-    const payload = {
-      chatroomId,
-      message,
-    };
+  useEffect(() => {
+    setSocketConnected(false);
 
-    if (socket) {
-      socket.emit("event://send-message", payload);
-    } else {
-      console.warn("Socket not connected!");
+    if (!loggedInUserData) {
+      console.log("No access token, cannot connect to socket.");
+      return;
     }
-  };
 
-  const sendChatroomRead = (chatroomId: string) => {
-    const payload = {
-      chatroomId,
-    };
-
-    if (socket) {
-      socket.emit("event://send-chatroom-read", payload);
-    } else {
-      console.warn("Socket not connected!");
-    }
-  };
-
-  const sendChatroomTyping = (chatroomId: string, typing: boolean) => {
-    const payload = {
-      chatroomId,
-      typing,
-    };
-
-    if (socket) {
-      socket.emit("event://send-chatroom-typing", payload);
-    } else {
-      console.warn("Socket not connected!");
-    }
-  };
-
-  if (!socket && loggedInUserData) {
+    console.log("Connecting to socket");
     socket = io.connect(wsUrl + "/chat", {
       query: {
         token: loggedInUserData.accessToken,
       },
+    });
+
+    socket.on("connect", () => {
+      setSocketConnected(true);
+      console.log("Socket connected!");
+    });
+
+    socket.on("disconnect", () => {
+      setSocketConnected(false);
+      console.log("Socket disconnected!");
+    });
+
+    socket.on("reconnection_attempt", () => {
+      console.log("Socket attempting reconnect!");
+    });
+
+    socket.on("reconnect", () => {
+      setSocketConnected(true);
+      console.log("Socket reconnected!");
     });
 
     socket.on("event://get-message", (payload: UpdateChatLogMessage) => {
@@ -91,8 +83,6 @@ export default ({ children }: any) => {
     });
 
     socket.on("event://online-statuses", (payload: BecomeOnlineMessage[]) => {
-      console.log("online-statuses");
-      console.log(payload);
       dispatch(addOnlineUsers(payload, loggedInUserData.user.id));
     });
 
@@ -128,13 +118,58 @@ export default ({ children }: any) => {
       }
     );
 
-    ws = {
-      socket: socket,
-      sendMessage,
-      sendChatroomRead,
-      sendChatroomTyping,
+    return () => {
+      console.log("Socket disconnecting");
+      socket?.disconnect();
+      socket?.removeAllListeners();
     };
-  }
+  }, [loggedInUserData]);
+
+  const sendMessage = (chatroomId: string, message: string) => {
+    const payload = {
+      chatroomId,
+      message,
+    };
+
+    if (socket && socketConnected) {
+      socket.emit("event://send-message", payload);
+    } else {
+      console.warn("Socket not connected!");
+    }
+  };
+
+  const sendChatroomRead = (chatroomId: string) => {
+    const payload = {
+      chatroomId,
+    };
+
+    if (socket && socketConnected) {
+      socket.emit("event://send-chatroom-read", payload);
+    } else {
+      console.warn("Socket not connected!");
+    }
+  };
+
+  const sendChatroomTyping = (chatroomId: string, typing: boolean) => {
+    const payload = {
+      chatroomId,
+      typing,
+    };
+
+    if (socket && socketConnected) {
+      socket.emit("event://send-chatroom-typing", payload);
+    } else {
+      console.warn("Socket not connected!");
+    }
+  };
+
+  ws = {
+    socket: socket,
+    socketConnected,
+    sendMessage,
+    sendChatroomRead,
+    sendChatroomTyping,
+  };
 
   return (
     <ChatSocketContext.Provider value={ws}>

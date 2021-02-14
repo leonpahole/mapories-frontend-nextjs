@@ -23,7 +23,10 @@ import {
   getMyChatrooms,
   getUnreadChatsCount,
 } from "../../api/chat.api";
-import { PaginatedResponse } from "../../types/PaginatedResponse";
+import {
+  CursorPaginatedResponse,
+  PaginatedResponse,
+} from "../../types/PaginatedResponse";
 
 export const startLoadingChats = () => {
   return {
@@ -72,15 +75,22 @@ export const addMessagesToChatroom = (
   };
 };
 
-export const fetchChatroomMessages = (chatroomId: string, skip: number) => {
+export const fetchChatroomMessages = (
+  chatroomId: string,
+  cursor?: number | null
+) => {
+  if (cursor === null) {
+    return;
+  }
+
   return async function (dispatch: any) {
-    let messages: PaginatedResponse<ChatroomMessage> = {
-      moreAvailable: false,
+    let messages: CursorPaginatedResponse<ChatroomMessage> = {
+      cursor: null,
       data: [],
     };
 
     try {
-      messages = await getChatroomMessages(chatroomId, skip);
+      messages = await getChatroomMessages(chatroomId, cursor);
     } catch (e) {
       console.log(e);
     }
@@ -89,7 +99,7 @@ export const fetchChatroomMessages = (chatroomId: string, skip: number) => {
       addMessagesToChatroom({
         chatroomId,
         messages: messages.data,
-        moreAvailable: messages.moreAvailable,
+        cursor: messages.cursor,
       })
     );
   };

@@ -5,7 +5,10 @@ import {
   convertIChatroomsToChatrooms,
   ChatroomMessage,
 } from "../types/ChatroomMessage";
-import { PaginatedResponse } from "../types/PaginatedResponse";
+import {
+  CursorPaginatedResponse,
+  PaginatedResponse,
+} from "../types/PaginatedResponse";
 
 export const getUnreadChatsCount = async (): Promise<{
   unreadCount: number;
@@ -26,11 +29,13 @@ export const getMyChatrooms = async (): Promise<Chatroom[]> => {
 
 export const getChatroomMessages = async (
   id: string,
-  skip: number,
+  cursor?: number,
   pageSize: number = 10
-): Promise<PaginatedResponse<ChatroomMessage>> => {
-  const res = await api.get<PaginatedResponse<ChatroomMessage>>(
-    `chat/rooms/${id}/messages?skip=${skip}&pageSize=${pageSize}`
+): Promise<CursorPaginatedResponse<ChatroomMessage>> => {
+  const res = await api.get<CursorPaginatedResponse<ChatroomMessage>>(
+    `chat/rooms/${id}/messages?pageSize=${pageSize}${
+      cursor ? `&cursor=${cursor}` : ""
+    }`
   );
   return res.data;
 };

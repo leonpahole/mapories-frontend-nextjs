@@ -73,7 +73,7 @@ export const updatePicturesForPost = async (
 
   formData.append(`deletedPictures`, JSON.stringify(deletedPictures));
 
-  const res = await api.patch<string[]>(
+  const res = await api.patch<{ images: string[] }>(
     `post/update-pictures/${postId}`,
     formData,
     {
@@ -83,7 +83,7 @@ export const updatePicturesForPost = async (
     }
   );
 
-  return res.data;
+  return res.data.images;
 };
 
 export const updatePost = async (

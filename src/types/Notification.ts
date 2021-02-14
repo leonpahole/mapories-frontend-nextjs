@@ -21,5 +21,5 @@ export interface Notification {
 
 export type AddNotificatonsData = {
   notifications: Notification[];
-  moreAvailable: boolean;
+  cursor: number | null | undefined;
 };

@@ -12,7 +12,7 @@ import { Notification } from "../../types/Notification";
 export interface NotificationStateI {
   unreadCount: number;
   notifications: Notification[];
-  moreAvailable: boolean;
+  cursor?: number | null;
   mostRecentNotification: Notification | null;
   loading: boolean;
 }
@@ -20,7 +20,7 @@ export interface NotificationStateI {
 const defaultState: NotificationStateI = {
   unreadCount: 0,
   notifications: [],
-  moreAvailable: false,
+  cursor: undefined,
   mostRecentNotification: null,
   loading: false,
 };
@@ -39,7 +39,7 @@ const notificationReducer = (
     case ADD_NOTIFICATIONS:
       return {
         ...state,
-        moreAvailable: action.payload.moreAvailable,
+        cursor: action.payload.cursor,
         notifications: [
           ...state.notifications,
           ...action.payload.notifications,

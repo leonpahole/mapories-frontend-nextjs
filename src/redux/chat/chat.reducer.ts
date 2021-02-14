@@ -72,8 +72,8 @@ const chatReducer = (
             ...c,
             messages: {
               ...c.messages,
-              data: [...c.messages.data, ...action.payload.messages],
-              moreAvailable: action.payload.moreAvailable,
+              data: [...action.payload.messages.reverse(), ...c.messages.data],
+              cursor: action.payload.cursor,
               loading: false,
             },
           };

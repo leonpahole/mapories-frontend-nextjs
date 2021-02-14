@@ -76,7 +76,7 @@ const Login: React.FC = () => {
 
   const onLogin = (data: AuthenticationData) => {
     dispatch(loginAction(data));
-    dispatch(fetchNotifications(0));
+    dispatch(fetchNotifications(undefined));
     dispatch(fetchUnreadNotificationCount());
     dispatch(fetchChatrooms());
     history.push("/");

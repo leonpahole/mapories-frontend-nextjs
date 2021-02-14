@@ -8,9 +8,12 @@ function receivePushNotification(event) {
   }
 
   let text = notification.sender.name + " ";
-  let link = "http://localhost:3000";
+  let link = "https://mapories.leonpahole.com";
 
-  if (notification.type === "ACCEPTED_FRIEND_REQUEST") {
+  if (notification.type === "chat") {
+    text += ": " + notification.message;
+    link += `/profile/${notification.sender.id}`;
+  } else if (notification.type === "ACCEPTED_FRIEND_REQUEST") {
     text += "has accepted your friend request.";
     link += `/profile/${notification.sender.id}`;
   } else if (notification.type === "SENT_FRIEND_REQUEST") {

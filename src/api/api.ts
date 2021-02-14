@@ -3,11 +3,7 @@ import jwtDecode from "jwt-decode";
 import store from "../redux/store";
 import { refreshToken } from "./auth.api";
 
-const apiUrl = process.env.REACT_APP_API_URL;
-
-export const convertPictureUri = (uri: string) => {
-  return `${apiUrl}/${uri}`;
-};
+export const apiUrl = process.env.REACT_APP_API_URL;
 
 export const api = axios.create({
   withCredentials: true,

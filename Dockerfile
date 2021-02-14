@@ -19,6 +19,7 @@ RUN yarn install --frozen-lockfile
 COPY tsconfig*.json ./
 
 COPY public public
+COPY .env.production .env.production
 COPY src src
 
 RUN yarn run build
